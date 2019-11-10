@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@model object
+@{
+    ViewBag.Title = "Index";
+}
+<style>
+    .text-center {
+        text-align: center;
+        width: 100%;
+        color: blue;
+    }
+
+    .modify-size {
+        font-size: 25px;
+    }
+</style>
+<div class="text-center">
+    <h4 class="modify-size">Добро пожаловать, пользователь с IP-адресом @HttpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString(),</h4>
+     @{
+         if (HttpContextAccessor.HttpContext.Request.Headers.TryGetValue("User-Agent", out var agent))
+         {
+             <h4 class="modify-size">зашедший через браузер @agent </h4>
+             ;
+         }
+     }
+    <h4 class="modify-size">Это дипломный проект студента Прокоповича Д.В.,</h4>
+    <h4 class="modify-size">посвящённый автоматизации процеса учёта защиты лабораторных работ студентами.</h4>
+</div>
