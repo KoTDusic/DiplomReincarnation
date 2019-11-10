@@ -8,28 +8,16 @@ using FirebirdSql.Data.FirebirdClient;
 using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.Mapping;
+using LinqToDB.SchemaProvider;
 
 namespace ElectronDecanat
 {
     public class ElectronDecanatDb : DataConnection
     {
-        public void CheckDatabaseCreated()
-        {
-            if (!File.Exists(DatabaseLocation.DatabaseFile))
-            {
-                FbConnection.CreateDatabase(new FireBirdSettings().ConnectionStrings.First().ConnectionString, false);
-            }
-
-            var provider = DataProvider.GetSchemaProvider().GetSchema(this);
-
-            var existingTablesSet = provider.Tables.Select(schema => schema.TableName.ToLowerInvariant()).ToHashSet();
-            if (!existingTablesSet.Contains(GetTypeTableName(typeof(RegistrationUser))))
-            {
-                this.CreateTable<RegistrationUser>();
-            }
-        }
-
         public ITable<RegistrationUser> Accounts => GetTable<RegistrationUser>();
+        public ITable<Faculty> Faculties => GetTable<Faculty>();
+        public ITable<Speciality> Specialties => GetTable<Speciality>();
+        public ITable<Teacher> Teachers => GetTable<Teacher>();
 
         // ... other tables ...
         private string GetTypeTableName(Type type)

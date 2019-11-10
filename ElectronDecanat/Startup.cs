@@ -1,15 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ElectronDecanat.DatabaseConnection;
-using ElectronDecanat.Models;
 using LinqToDB.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,10 +15,6 @@ namespace ElectronDecanat
         {
             Configuration = configuration;
             DataConnection.DefaultSettings = new FireBirdSettings();
-            using (var db = new ElectronDecanatDb())
-            {
-                db.CheckDatabaseCreated();
-            }
         }
 
         public IConfiguration Configuration { get; }
