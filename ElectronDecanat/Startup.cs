@@ -1,3 +1,5 @@
+using ElectronDecanat.Repozitory;
+using FirebirdDatabaseProviders;
 using LinqToDB.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -34,6 +36,8 @@ namespace ElectronDecanat
             services.AddHttpContextAccessor();
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddTransient<IUnitOfWork, FirebirdUnitOfWork>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

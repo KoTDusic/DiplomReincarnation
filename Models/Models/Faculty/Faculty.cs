@@ -1,15 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using LinqToDB.Mapping;
 
-namespace ElectronDecanat.Models
+namespace Models
 {
-    [Table(Name = "Faculties")]
-    public class Faculty
+    [Table(Name = "Faculty")]
+    public class Faculty : BaseIdModel
     {
-        [Column("Id"), PrimaryKey, Identity]
-        public int? Id { get; set; }
-
-        [Column(Name = "Username"), NotNull]
+        [Column(Name = "FacultyName"), NotNull]
         [Display(Name = "Название факультета"), Required(ErrorMessage = "Не заполнено название факультета")]
         public string FacultyName { get; set; }
     }

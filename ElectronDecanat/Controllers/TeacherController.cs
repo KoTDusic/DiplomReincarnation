@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ElectronDecanat.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ElectronDecanat.Controllers
 {
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Roles = UserType.Teacher)]
     public class TeacherController : Controller
     {
         // GET: Teacher

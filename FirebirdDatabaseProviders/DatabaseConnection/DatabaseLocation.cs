@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using FirebirdSql.Data.FirebirdClient;
 
-namespace ElectronDecanat.DatabaseConnection
+namespace FirebirdDatabaseProviders
 {
     public static class DatabaseLocation
     {

@@ -3,21 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using ElectronDecanat.Models;
+using ElectronDecanat.Auth;
+using FirebirdDatabaseProviders;
 using LinqToDB;
 using LinqToDB.Common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Models;
 
 namespace ElectronDecanat.Controllers
 {
     public class AccountController : Controller
     {
-        public AccountController()
-        {
-            
-        }
 
         [HttpGet]
         public IActionResult Register()
@@ -35,7 +33,7 @@ namespace ElectronDecanat.Controllers
                 {
                     return View();
                 }
-                using (var db = new ElectronDecanatDb())
+                using (var db = new FirebirdDb())
                 {
                     if (db.Accounts.Any(u => u.Username.Equals(user.Username)))
                     {
@@ -79,7 +77,7 @@ namespace ElectronDecanat.Controllers
                     return View();
                 }
 
-                using (var db = new ElectronDecanatDb())
+                using (var db = new FirebirdDb())
                 {
                     if (!db.Accounts.Any(u => u.Username.Equals(user.Username) && u.Password.Equals(user.Password)))
                     {
@@ -115,10 +113,19 @@ namespace ElectronDecanat.Controllers
         private async Task Authenticate(string userName)
         {
             // создаем один claim
-            var claims = new List<Claim>
+            var claims = new List<Claim>();
+            claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, userName));
+            if (userName == "Admin")
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, userName),
-                new Claim(ClaimTypes.Role, "Teacher")
+                claims.Add(new Claim(ClaimTypes.Role, UserType.Admin));
+            }
+            else if (userName == "Dekan")
+            {
+                claims.Add(new Claim(ClaimTypes.Role, UserType.Decanat));
+            }
+            else
+            {
+                claims.Add(new Claim(ClaimTypes.Role, UserType.Teacher));
             };
             // создаем объект ClaimsIdentity
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", 

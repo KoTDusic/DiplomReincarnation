@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElectronDecanat", "ElectronDecanat\ElectronDecanat.csproj", "{AF98C6A0-E276-492C-A809-CACC1A33B664}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirebirdDatabaseProviders", "FirebirdDatabaseProviders\FirebirdDatabaseProviders.csproj", "{F992720E-F878-491E-9EF5-B782213B1B88}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "Models\Models.csproj", "{759DC78A-1D9C-43A0-A318-E344A09012D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{AF98C6A0-E276-492C-A809-CACC1A33B664}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF98C6A0-E276-492C-A809-CACC1A33B664}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF98C6A0-E276-492C-A809-CACC1A33B664}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F992720E-F878-491E-9EF5-B782213B1B88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F992720E-F878-491E-9EF5-B782213B1B88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F992720E-F878-491E-9EF5-B782213B1B88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F992720E-F878-491E-9EF5-B782213B1B88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{759DC78A-1D9C-43A0-A318-E344A09012D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{759DC78A-1D9C-43A0-A318-E344A09012D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{759DC78A-1D9C-43A0-A318-E344A09012D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{759DC78A-1D9C-43A0-A318-E344A09012D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

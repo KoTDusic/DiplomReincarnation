@@ -1,103 +1,102 @@
+using System;
+using System.Linq;
+using ElectronDecanat.Auth;
+using ElectronDecanat.Repozitory;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models;
 
 namespace ElectronDecanat.Controllers
 {
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = UserType.Admin)]
     public class AdminController : Controller
     {
-        //private string ParseOracleError(string error)
-        //{
-        //    return error.Split(':').ElementAt(1).Split('O').ElementAt(0);
-        //}
-        //private ApplicationUserManager _userManager;
-        //public ApplicationUserManager UserManager
-        //{
-        //    get
-        //    {
-        //        return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-        //    }
-        //    private set
-        //    {
-        //        _userManager = value;
-        //    }
-        //}
+        private readonly IUnitOfWork _unitOfWork;
+
+        public AdminController(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork ?? throw new ArgumentException(nameof(unitOfWork));
+        }
         //#region FACULTY
-        public ActionResult Facultes()
+        public ActionResult Faculties()
+        {
+            return View(_unitOfWork.Faculties.GetAll().ToList());
+        }
+        public ActionResult AddFaculty()
         {
             return View();
         }
-        //public ActionResult AddFaculty()
-        //{
-        //    return View();
-        //}
-        //[HttpPost]
-        //public ActionResult AddFaculty(NewFaculty faculty)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Faculties.Create(faculty);
-        //        return RedirectToAction("Facultes");
-        //    }
-        //    catch
-        //    {
-        //        ModelState.AddModelError("Name", "ошибка добавления, возможно такой факультет уже есть?");
-        //        return View(faculty);
-        //    }
-        //}
-        //public ActionResult EditFaculty(int id)
-        //{
-        //    Faculty oldFaculty = UnitOfWork.Faculties.Get(id);
-        //    NewFaculty faculty = new NewFaculty { Name = oldFaculty.Name };
-        //    return View(faculty);
-        //}
-        //[HttpPost]
-        //public ActionResult EditFaculty(NewFaculty faculty)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Faculties.Update(faculty);
-        //    }
-        //    catch
-        //    {
-        //        ModelState.AddModelError("NewName", "Не удалось переименовать факультет, возможно, факультет с таким именем уже есть?");
-        //        return View(faculty);
-        //    }
-        //    return RedirectToAction("Facultes");
-        //}
-        //public ActionResult DeleteFaculty(int id)
-        //{
-        //    Faculty oldFaculty = UnitOfWork.Faculties.Get(id);
-        //    Faculty faculty = new Faculty { Name = oldFaculty.Name };
-        //    return View(faculty);
-        //}
-        //[HttpPost]
-        //public ActionResult DeleteFaculty(Faculty faculty)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Faculties.Delete(faculty.id);
-        //    }
-        //    catch(Exception)
-        //    {
-        //        ModelState.AddModelError("Name", "Невозможно удалить этот факультет, так как он не пустой");
-        //    }
-        //    if (ModelState.IsValid)
-        //    {
-        //        return RedirectToAction("Facultes");
-        //    }
-        //    else
-        //    {
-        //        return View();
-        //    }
-        //}
+        [HttpPost]
+        public ActionResult AddFaculty(Faculty faculty)
+        {
+            try
+            {
+                _unitOfWork.Faculties.Create(faculty);
+                return RedirectToAction("Faculties");
+            }
+            catch
+            {
+                //ModelState.AddModelError("Name", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ?");
+                return View(faculty);
+            }
+        }
+        public ActionResult EditFaculty(int id)
+        {
+            var oldFaculty = _unitOfWork.Faculties.Get(id);
+            var faculty = new RenameFaculty {OldFacultyName = oldFaculty.FacultyName, Id = oldFaculty.Id};
+            return View(faculty);
+        }
+        [HttpPost]
+        public ActionResult EditFaculty(RenameFaculty faculty)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View();
+                }
+                
+                _unitOfWork.Faculties.Update(faculty);
+            }
+            catch
+            {
+                //ModelState.AddModelError("NewName", "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ?");
+                return View(faculty);
+            }
+            return RedirectToAction("Faculties");
+        }
+        public ActionResult DeleteFaculty(int id)
+        {
+            var oldFaculty = _unitOfWork.Faculties.Get(id);
+            return View(oldFaculty);
+        }
+        [HttpPost]
+        public ActionResult DeleteFaculty(Faculty faculty)
+        {
+            try
+            {
+                _unitOfWork.Faculties.Delete(faculty);
+            }
+            catch(Exception)
+            {
+                //ModelState.AddModelError("Name", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
+            }
+            if (ModelState.IsValid)
+            {
+                return RedirectToAction("Faculties");
+            }
+            else
+            {
+                return View();
+            }
+        }
         //#endregion
         //#region SPECIALITIS
         //public ActionResult Specialitis(int faculty_id)
         //{
         //    ViewBag.faculty_id = faculty_id;
         //    ViewBag.faculty = UnitOfWork.Faculties.Get(faculty_id).Name;
-        //    return View(UnitOfWork.Specialitys.GetAll("where \"Код_факультета\"="+faculty_id));
+        //    return View(UnitOfWork.Specialitys.GetAll("where \"пїЅпїЅпїЅ_пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\"="+faculty_id));
         //}
         //public ActionResult AddSpeciality(int faculty_id)
         //{
@@ -115,7 +114,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch
         //    {
-        //        ModelState.AddModelError("speciality_name", "ошибка добавления, возможно такая специальность уже есть?");
+        //        ModelState.AddModelError("speciality_name", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ?");
         //        return View(speciality);
         //    }
 
@@ -152,7 +151,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch (Exception)
         //    {
-        //        ModelState.AddModelError("speciality_name", "Невозможно удалить эту специальность, так как она не пустая");
+        //        ModelState.AddModelError("speciality_name", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
         //        return View(speciality);
         //    }
         //}
@@ -166,7 +165,7 @@ namespace ElectronDecanat.Controllers
         //    ViewBag.faculty = speciality.faculty_name;
         //    ViewBag.speciality_name = speciality.speciality_name;
         //    ViewBag.speciality_number = speciality.speciality_number;
-        //    return View(UnitOfWork.Disciplines.GetAll("where \"Код_специальности\"=" + speciality_id));
+        //    return View(UnitOfWork.Disciplines.GetAll("where \"пїЅпїЅпїЅ_пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\"=" + speciality_id));
         //}
         //public ActionResult AddDiscipline(int speciality_id)
         //{
@@ -191,7 +190,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch 
         //    {
-        //        ModelState.AddModelError("discipline_name", "ошибка добавления, возможно такая дисциплина уже есть?");
+        //        ModelState.AddModelError("discipline_name", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ?");
         //        return View(discipline); 
         //    }
 
@@ -211,7 +210,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch 
         //    {
-        //        ModelState.AddModelError("newDisciplineName", "ошибка переименования, возможно такая дисциплина уже есть?");
+        //        ModelState.AddModelError("newDisciplineName", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ?");
         //        return View(discipline);
         //    }
         //}
@@ -230,7 +229,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch (Exception)
         //    {
-        //        ModelState.AddModelError("discipline_name", "Невозможно удалить эту дисциплину, так как она не пустая");
+        //        ModelState.AddModelError("discipline_name", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
         //        return View(discipline);
         //    }
         //}
@@ -244,7 +243,7 @@ namespace ElectronDecanat.Controllers
         //    ViewBag.speciality_name=speciality.speciality_name;
         //    ViewBag.speciality_number = speciality.speciality_number;
         //    ViewBag.speciality_id = speciality.id;
-        //    return View(UnitOfWork.Groups.GetAll("where \"Код_специальности\"=" + speciality_id));
+        //    return View(UnitOfWork.Groups.GetAll("where \"пїЅпїЅпїЅ_пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\"=" + speciality_id));
         //}
         //public ActionResult AddGroup(int speciality_id)
         //{
@@ -268,7 +267,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch
         //    {
-        //        ModelState.AddModelError("group_number", "ошибка добавления, возможно такая группа уже есть?");
+        //        ModelState.AddModelError("group_number", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ?");
         //        return View(group);
         //    }
 
@@ -287,7 +286,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch (Exception)
         //    {
-        //        ModelState.AddModelError("group_number", "ошибка удаления, данная группа не пуста");
+        //        ModelState.AddModelError("group_number", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
         //        return View(group);
         //    }
         //}
@@ -303,7 +302,7 @@ namespace ElectronDecanat.Controllers
         //    ViewBag.speciality_number = group.speciality_number;
         //    ViewBag.coors=group.coors;
         //    ViewBag.group_number = group.group_number;
-        //    IEnumerable<Subgroup> subgroups = UnitOfWork.Subgroups.GetAll("where \"Код_группы\"=" + group_id);
+        //    IEnumerable<Subgroup> subgroups = UnitOfWork.Subgroups.GetAll("where \"пїЅпїЅпїЅ_пїЅпїЅпїЅпїЅпїЅпїЅ\"=" + group_id);
         //    return View(subgroups);
         //}
         //public ActionResult AddSubgroup(int group_id)
@@ -330,7 +329,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch
         //    {
-        //        ModelState.AddModelError("subgroup_number", "ошибка добавления, возможно такая группа уже есть?");
+        //        ModelState.AddModelError("subgroup_number", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ?");
         //        return View(subgroup);
         //    }
 
@@ -350,7 +349,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch (Exception)
         //    {
-        //        ModelState.AddModelError("subgroup_number", "ошибка удаления, данная подгруппа не пуста");
+        //        ModelState.AddModelError("subgroup_number", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
         //        return View(subgroup);
         //    }
         //}
@@ -367,7 +366,7 @@ namespace ElectronDecanat.Controllers
         //    ViewBag.coors = subgroup.coors;
         //    ViewBag.group_number = subgroup.group_number;
         //    ViewBag.subgroup_number = subgroup.subgroup_number;
-        //    IEnumerable<Subgroup> subgroups = UnitOfWork.Students.GetAll("where \"Код_подгруппы\"=" + subgroup_id);
+        //    IEnumerable<Subgroup> subgroups = UnitOfWork.Students.GetAll("where \"пїЅпїЅпїЅ_пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\"=" + subgroup_id);
         //    return View(subgroups);
         //}
         //public ActionResult AddStudent(int subgroup_id)
@@ -395,7 +394,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch
         //    {
-        //        ModelState.AddModelError("FIO", "ошибка добавления, возможно такой студент уже есть?");
+        //        ModelState.AddModelError("FIO", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ?");
         //        return View(student);
         //    }
 
@@ -415,7 +414,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch
         //    {
-        //        ModelState.AddModelError("FIO", "ошибка переименования, возможно такой студент уже есть?");
+        //        ModelState.AddModelError("FIO", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ?");
         //        return View(student);
         //    }
         //}
@@ -434,7 +433,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch (Exception)
         //    {
-        //        ModelState.AddModelError("FIO", "ошибка удаления студента");
+        //        ModelState.AddModelError("FIO", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
         //        return View(student);
         //    }
         //}
@@ -450,7 +449,7 @@ namespace ElectronDecanat.Controllers
         //    ViewBag.subgroup_number = subgroup.subgroup_number;
         //    ViewBag.subgroup_id = subgroup.id;
         //    ViewBag.group_id = subgroup.group_id;
-        //    return View(UnitOfWork.Works.GetAll("where \"Код_подгруппы\"=" + subgroup_id));
+        //    return View(UnitOfWork.Works.GetAll("where \"пїЅпїЅпїЅ_пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\"=" + subgroup_id));
         //}
         //public ActionResult AddWork(int subgroup_id)
         //{
@@ -529,7 +528,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch
         //    {
-        //        ModelState.AddModelError("new_username", "ошибка переименования");
+        //        ModelState.AddModelError("new_username", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
         //        return View(teacher);
         //    }
         //}
@@ -584,7 +583,7 @@ namespace ElectronDecanat.Controllers
         //    }
         //    catch
         //    {
-        //        ModelState.AddModelError("new_role", "ошибка добавления роли");
+        //        ModelState.AddModelError("new_role", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ");
         //        return View(user);
         //    }
         //}

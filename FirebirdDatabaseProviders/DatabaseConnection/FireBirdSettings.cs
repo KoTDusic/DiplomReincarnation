@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using ElectronDecanat.DatabaseConnection;
 using LinqToDB.Configuration;
 
-namespace ElectronDecanat
+namespace FirebirdDatabaseProviders
 {
     public class FireBirdSettings : ILinqToDBSettings
     {

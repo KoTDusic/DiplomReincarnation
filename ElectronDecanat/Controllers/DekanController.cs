@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ElectronDecanat.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ElectronDecanat.Controllers
 {
-    [Authorize(Roles = "decanat")]
+    [Authorize(Roles = UserType.Decanat)]
     public class DekanController : Controller
     {
         public ActionResult Index()

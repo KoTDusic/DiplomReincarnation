@@ -1,6 +1,6 @@
 using LinqToDB.Configuration;
 
-namespace ElectronDecanat
+namespace FirebirdDatabaseProviders
 {
     public class ConnectionStringSettings : IConnectionStringSettings
     {
