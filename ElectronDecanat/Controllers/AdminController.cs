@@ -17,15 +17,19 @@ namespace ElectronDecanat.Controllers
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentException(nameof(unitOfWork));
         }
-        //#region FACULTY
+
+        #region FACULTY
+
         public ActionResult Faculties()
         {
             return View(_unitOfWork.Faculties.GetAll().ToList());
         }
+
         public ActionResult AddFaculty()
         {
             return View();
         }
+
         [HttpPost]
         public ActionResult AddFaculty(Faculty faculty)
         {
@@ -36,16 +40,18 @@ namespace ElectronDecanat.Controllers
             }
             catch
             {
-                //ModelState.AddModelError("Name", "������ ����������, �������� ����� ��������� ��� ����?");
+                ModelState.AddModelError(string.Empty, "Не удалось добавить факультет");
                 return View(faculty);
             }
         }
+
         public ActionResult EditFaculty(int id)
         {
             var oldFaculty = _unitOfWork.Faculties.Get(id);
-            var faculty = new RenameFaculty {OldFacultyName = oldFaculty.FacultyName, Id = oldFaculty.Id};
+            var faculty = new RenameFaculty(oldFaculty);
             return View(faculty);
         }
+
         [HttpPost]
         public ActionResult EditFaculty(RenameFaculty faculty)
         {
@@ -55,21 +61,24 @@ namespace ElectronDecanat.Controllers
                 {
                     return View();
                 }
-                
+
                 _unitOfWork.Faculties.Update(faculty);
             }
             catch
             {
-                //ModelState.AddModelError("NewName", "�� ������� ������������� ���������, ��������, ��������� � ����� ������ ��� ����?");
+                ModelState.AddModelError(string.Empty, "Не удалось обновить факультет");
                 return View(faculty);
             }
+
             return RedirectToAction("Faculties");
         }
+
         public ActionResult DeleteFaculty(int id)
         {
             var oldFaculty = _unitOfWork.Faculties.Get(id);
             return View(oldFaculty);
         }
+
         [HttpPost]
         public ActionResult DeleteFaculty(Faculty faculty)
         {
@@ -77,10 +86,11 @@ namespace ElectronDecanat.Controllers
             {
                 _unitOfWork.Faculties.Delete(faculty);
             }
-            catch(Exception)
+            catch (Exception)
             {
-                //ModelState.AddModelError("Name", "���������� ������� ���� ���������, ��� ��� �� �� ������");
+                ModelState.AddModelError(string.Empty, "Не удалось удалить факультет");
             }
+
             if (ModelState.IsValid)
             {
                 return RedirectToAction("Faculties");
@@ -90,150 +100,179 @@ namespace ElectronDecanat.Controllers
                 return View();
             }
         }
-        //#endregion
-        //#region SPECIALITIS
-        //public ActionResult Specialitis(int faculty_id)
-        //{
-        //    ViewBag.faculty_id = faculty_id;
-        //    ViewBag.faculty = UnitOfWork.Faculties.Get(faculty_id).Name;
-        //    return View(UnitOfWork.Specialitys.GetAll("where \"���_����������\"="+faculty_id));
-        //}
-        //public ActionResult AddSpeciality(int faculty_id)
-        //{
-        //    Faculty faculty = UnitOfWork.Faculties.Get(faculty_id);
-        //    Speciality speciality = new Speciality { faculty_code = faculty_id, faculty_name = faculty.Name };
-        //    return View(speciality);
-        //}
-        //[HttpPost]
-        //public ActionResult AddSpeciality(Speciality speciality)
-        //{
-        //    try 
-        //    {
-        //        UnitOfWork.Specialitys.Create(speciality);
-        //        return RedirectToAction("Specialitis", new { faculty_id=speciality.faculty_code });
-        //    }
-        //    catch
-        //    {
-        //        ModelState.AddModelError("speciality_name", "������ ����������, �������� ����� ������������� ��� ����?");
-        //        return View(speciality);
-        //    }
 
-        //}
-        //public ActionResult EditSpeciality(int id)
-        //{
-        //    NewSpeciality speciality = UnitOfWork.Specialitys.Get(id);
-        //    speciality.new_speciality_number = speciality.speciality_number;
-        //    speciality.new_speciality_name = speciality.speciality_name;
-        //    return View(speciality);
-        //}
-        //[HttpPost]
-        //public ActionResult EditSpeciality(NewSpeciality speciality)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Specialitys.Update(speciality);
-        //        return RedirectToAction("Specialitis", new { faculty_id = speciality.faculty_code });
-        //    }
-        //    catch { return View(speciality); }
-        //}
-        //public ActionResult DeleteSpeciality(int id)
-        //{
-        //    Speciality speciality = UnitOfWork.Specialitys.Get(id);
-        //    return View(speciality);
-        //}
-        //[HttpPost]
-        //public ActionResult DeleteSpeciality(Speciality speciality)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Specialitys.Delete(speciality.id);
-        //        return RedirectToAction("Specialitis", new { faculty_id = speciality.faculty_code });
-        //    }
-        //    catch (Exception)
-        //    {
-        //        ModelState.AddModelError("speciality_name", "���������� ������� ��� �������������, ��� ��� ��� �� ������");
-        //        return View(speciality);
-        //    }
-        //}
-        //#endregion
-        //#region DISCIPLINES
-        //public ActionResult Disciplines(int speciality_id)
-        //{
-        //    Speciality speciality = UnitOfWork.Specialitys.Get(speciality_id);
-        //    ViewBag.faculty_id = speciality.faculty_code;
-        //    ViewBag.speciality_id = speciality_id;
-        //    ViewBag.faculty = speciality.faculty_name;
-        //    ViewBag.speciality_name = speciality.speciality_name;
-        //    ViewBag.speciality_number = speciality.speciality_number;
-        //    return View(UnitOfWork.Disciplines.GetAll("where \"���_�������������\"=" + speciality_id));
-        //}
-        //public ActionResult AddDiscipline(int speciality_id)
-        //{
-        //    Speciality speciality = UnitOfWork.Specialitys.Get(speciality_id);
-        //    Discipline discipline = new Discipline 
-        //    {
-        //        faculty_name = speciality.faculty_name,
-        //        faculty_code = speciality.faculty_code,
-        //        speciality_code = speciality.id,
-        //        speciality_name = speciality.speciality_name,
-        //        speciality_number = speciality.speciality_number
-        //    };
-        //    return View(discipline);
-        //}
-        //[HttpPost]
-        //public ActionResult AddDiscipline(Discipline discipline)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Disciplines.Create(discipline);
-        //        return RedirectToAction("Disciplines", new { speciality_id=discipline.speciality_code });
-        //    }
-        //    catch 
-        //    {
-        //        ModelState.AddModelError("discipline_name", "������ ����������, �������� ����� ���������� ��� ����?");
-        //        return View(discipline); 
-        //    }
+        #endregion
 
-        //}
-        //public ActionResult EditDiscipline(int id)
-        //{
-        //    NewDiscipline discipline = UnitOfWork.Disciplines.Get(id);
-        //    return View(discipline);
-        //}
-        //[HttpPost]
-        //public ActionResult EditDiscipline(NewDiscipline discipline)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Disciplines.Update(discipline);
-        //        return RedirectToAction("Disciplines", new { speciality_id = discipline.speciality_code });
-        //    }
-        //    catch 
-        //    {
-        //        ModelState.AddModelError("newDisciplineName", "������ ��������������, �������� ����� ���������� ��� ����?");
-        //        return View(discipline);
-        //    }
-        //}
-        //public ActionResult DeleteDiscipline(int id)
-        //{
-        //    Discipline discipline = UnitOfWork.Disciplines.Get(id);
-        //    return View(discipline);
-        //}
-        //[HttpPost]
-        //public ActionResult DeleteDiscipline(Discipline discipline)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Disciplines.Delete(discipline.id);
-        //        return RedirectToAction("Disciplines", new { speciality_id = discipline.speciality_code });
-        //    }
-        //    catch (Exception)
-        //    {
-        //        ModelState.AddModelError("discipline_name", "���������� ������� ��� ����������, ��� ��� ��� �� ������");
-        //        return View(discipline);
-        //    }
-        //}
-        //#endregion
+        #region SPECIALITIS
+
+        public ActionResult Specialitys(int faculty_id)
+        {
+            ViewBag.faculty_id = faculty_id;
+            ViewBag.faculty = _unitOfWork.Faculties.Get(faculty_id).FacultyName;
+            return View(_unitOfWork.Specialitys.GetAll()
+                .Where(speciality => speciality.FacultyId == faculty_id).ToList());
+        }
+
+        public ActionResult AddSpeciality(int faculty_id)
+        {
+            var faculty = _unitOfWork.Faculties.Get(faculty_id);
+            var speciality = new Speciality {FacultyId = faculty_id, FacultyName = faculty?.FacultyName};
+            return View(speciality);
+        }
+        [HttpPost]
+        public ActionResult AddSpeciality(Speciality speciality)
+        {
+            try 
+            {
+                _unitOfWork.Specialitys.Create(speciality);
+                return RedirectToAction("Specialitys", new { faculty_id=speciality.FacultyId });
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "не удалось добавить специальность");
+                return View(speciality);
+            }
+        }
+        public ActionResult EditSpeciality(int id)
+        {
+            var speciality = _unitOfWork.Specialitys.Get(id);
+            speciality.FacultyName = _unitOfWork.Faculties.Get(speciality.FacultyId)?.FacultyName;
+            var model = new RenamedSpeciality(speciality);
+            return View(model);
+        }
+        
+        [HttpPost]
+        public ActionResult EditSpeciality(RenamedSpeciality speciality)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View();
+                }
+
+                _unitOfWork.Specialitys.Update(speciality);
+                return RedirectToAction("Specialitys", new {faculty_id = speciality.FacultyId});
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "не удалось обновить специальность");
+                return View(speciality); 
+                
+            }
+        }
+        public ActionResult DeleteSpeciality(int id)
+        {
+            var speciality = _unitOfWork.Specialitys.Get(id);
+            speciality.FacultyName = _unitOfWork.Faculties.Get(speciality.FacultyId).FacultyName;
+            return View(speciality);
+        }
+        [HttpPost]
+        public ActionResult DeleteSpeciality(Speciality speciality)
+        {
+            try
+            {
+                _unitOfWork.Specialitys.Delete(speciality);
+                return RedirectToAction("Specialitys", new { faculty_id = speciality.FacultyId });
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "не удалось удалить специальность");
+                return View(speciality);
+            }
+        }
+
+        #endregion
+
+        #region DISCIPLINES
+
+        public ActionResult Disciplines(int speciality_id)
+        {
+            var speciality = _unitOfWork.Specialitys.Get(speciality_id);
+            var faculty = _unitOfWork.Faculties.Get(speciality.FacultyId);
+            ViewBag.faculty_id = faculty.Id;
+            ViewBag.speciality_id = speciality_id;
+            ViewBag.faculty = faculty.FacultyName;
+            ViewBag.speciality_name = speciality.SpecialityName;
+            return View(_unitOfWork.Disciplines.GetAll()
+                .Where(discipline => discipline.SpecialityId == speciality_id).ToList());
+        }
+        public ActionResult AddDiscipline(int speciality_id)
+        {
+            var speciality = _unitOfWork.Specialitys.Get(speciality_id);
+            var faculty = _unitOfWork.Faculties.Get(speciality.FacultyId);
+            var discipline = new Discipline 
+            {
+                FacultyName = faculty.FacultyName,
+                SpecialityId = speciality.Id,
+                SpecialityName = speciality.SpecialityName
+            };
+            return View(discipline);
+        }
+        [HttpPost]
+        public ActionResult AddDiscipline(Discipline discipline)
+        {
+            try
+            {
+                _unitOfWork.Disciplines.Create(discipline);
+                return RedirectToAction("Disciplines", new { speciality_id=discipline.SpecialityId });
+            }
+            catch 
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось создать дисциплину");
+                return View(discipline); 
+            }
+        }
+        
+        public ActionResult EditDiscipline(int id)
+        {
+            var discipline = new RenamedDiscipline(_unitOfWork.Disciplines.Get(id));
+            var speciality = _unitOfWork.Specialitys.Get(discipline.SpecialityId);
+            var faculty = _unitOfWork.Faculties.Get(speciality.FacultyId);
+            discipline.FacultyName = faculty.FacultyName;
+            discipline.SpecialityName = speciality.SpecialityName;
+            return View(discipline);
+        }
+        [HttpPost]
+        public ActionResult EditDiscipline(RenamedDiscipline discipline)
+        {
+            try
+            {
+                _unitOfWork.Disciplines.Update(discipline);
+                return RedirectToAction("Disciplines", new { speciality_id = discipline.SpecialityId });
+            }
+            catch 
+            {
+                ModelState.AddModelError(string.Empty, "не удалось обновить дисциплину");
+                return View(discipline);
+            }
+        }
+        public ActionResult DeleteDiscipline(int id)
+        {
+            var discipline = _unitOfWork.Disciplines.Get(id);
+            var speciality = _unitOfWork.Specialitys.Get(discipline.SpecialityId);
+            var faculty = _unitOfWork.Faculties.Get(speciality.FacultyId);
+            discipline.FacultyName = faculty.FacultyName;
+            discipline.SpecialityName = speciality.SpecialityName;
+            return View(discipline);
+        }
+        [HttpPost]
+        public ActionResult DeleteDiscipline(Discipline discipline)
+        {
+            try
+            {
+                _unitOfWork.Disciplines.Delete(discipline);
+                return RedirectToAction("Disciplines", new { speciality_id = discipline.SpecialityId });
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось удалить дисциплину");
+                return View(discipline);
+            }
+        }
+
+        #endregion
+
         //#region GROUPS
         //public ActionResult Groups(int speciality_id)
         //{

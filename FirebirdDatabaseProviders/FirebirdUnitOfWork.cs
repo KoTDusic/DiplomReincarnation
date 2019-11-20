@@ -5,12 +5,14 @@ namespace ElectronDecanat.Repozitory
     public class FirebirdUnitOfWork : IUnitOfWork
     {
         private FacultiesRepository _faculties;
+        private static SpecialityRepozitory specialitys;
+        private static DisciplineRepozitory disciplines;
 
         public IRepository<Faculty> Faculties => _faculties ?? (_faculties = new FacultiesRepository());
-//        private static SpecialityRepozitory specialitys;
-//        public static SpecialityRepozitory Specialitys => specialitys ?? (specialitys = new SpecialityRepozitory());
-//        private static DisciplineRepozitory disciplines;
-//        public static DisciplineRepozitory Disciplines => disciplines ?? (disciplines = new DisciplineRepozitory());
+     
+        public IRepository<Speciality> Specialitys => specialitys ?? (specialitys = new SpecialityRepozitory());
+        
+        public IRepository<Discipline> Disciplines => disciplines ?? (disciplines = new DisciplineRepozitory());
 //        private static GroupRepozitory groups;
 //        public static GroupRepozitory Groups => groups ?? (groups = new GroupRepozitory());
 //        private static SubgroupRepozitory subgroups;

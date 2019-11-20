@@ -2,7 +2,7 @@
 
 namespace ElectronDecanat.Repozitory
 {
-    public class FacultiesRepository : BaseRepository<Faculty>
+    public class SpecialityRepozitory : BaseRepository<Speciality>
     {
     }
 }

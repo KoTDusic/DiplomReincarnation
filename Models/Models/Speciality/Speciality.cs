@@ -13,7 +13,8 @@ namespace Models
         [Display(Name = "Название специальности"), Required(ErrorMessage = "Не заполнено название специальности")]
         public string SpecialityName { get; set; }
 
-        [LinqToDB.Mapping.Association(ThisKey = nameof(FacultyId), OtherKey = nameof(Faculty.Id))]
-        public Faculty FacultyFk { get; set; }
+        [Display(Name = "Факультет")]
+        [NotColumn]
+        public string FacultyName { get; set; }
     }
 }

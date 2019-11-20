@@ -1,0 +1,43 @@
+﻿@model Models.Discipline
+@{
+    ViewBag.Title = "DeleteDiscipline";
+}
+
+<h2>Удаление дисциплины</h2>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.SpecialityId)
+    <div class="form-horizontal">
+        <div class="form-group">
+            @Html.LabelFor(model => model.FacultyName, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.FacultyName, new {htmlAttributes = new {@readonly = "readonly", @class = "form-control"}})
+                @Html.ValidationMessageFor(model => model.FacultyName, "", new {@class = "text-danger"})
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.SpecialityName, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.SpecialityName, new {htmlAttributes = new {@readonly = "readonly", @class = "form-control"}})
+                @Html.ValidationMessageFor(model => model.SpecialityName, "", new {@class = "text-danger"})
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.DisciplineName, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.DisciplineName, new {htmlAttributes = new {@readonly = "readonly", @class = "form-control"}})
+                @Html.ValidationMessageFor(model => model.DisciplineName, "", new {@class = "text-danger"})
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Удалить" class="btn btn-danger"/>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Назад", "Disciplines", new {speciality_id = Model.SpecialityId})
+</div>

@@ -1,0 +1,44 @@
+﻿@model List<Models.Discipline>
+@{
+    ViewBag.Title = "Disciplines";
+}
+<h3>Факультет @ViewBag.faculty</h3>
+<h4>Специальность @ViewBag.speciality_name</h4>
+<h4>Дисциплин на специальности (@Model.Count):</h4>
+<table id="main-table">
+    <thead>
+    <tr>
+        <th>Дисциплина</th>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach (var discipline in Model)
+    {
+        <tr>
+            <td>@discipline.DisciplineName </td>
+            <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                @Html.ActionLink("Редактировать", "EditDiscipline", new {id = discipline.Id})
+            </td>
+            <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                @Html.ActionLink("Удалить", "DeleteDiscipline", new {id = discipline.Id})
+            </td>
+        </tr>
+    }
+
+    </tbody>
+</table>
+<div>
+    <button class="clicable btn" onclick="this.getElementsByTagName('a')[0].click()">
+        @Html.ActionLink("Добавить", "AddDiscipline", new {speciality_id = ViewBag.speciality_id})
+    </button>
+    <br/>
+    @Html.ActionLink("Назад", "Specialitys", new {faculty_id = ViewBag.faculty_id})
+</div>
+<script type="text/javascript">
+        document.onload=new function () {
+            $('#main-table').DataTable(russian_lang);
+        };
+    </script>
