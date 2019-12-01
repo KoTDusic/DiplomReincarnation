@@ -6,11 +6,13 @@ namespace Models
 {
     public class RenamedSpeciality : Speciality
     {
+        // ReSharper disable once UnusedMember.Global
+        // OrmCtor
         public RenamedSpeciality()
         {
         }
 
-        public RenamedSpeciality(Speciality old)
+        public RenamedSpeciality(Speciality old) : base(old.Faculty)
         {
             if (old == null)
             {
@@ -19,8 +21,7 @@ namespace Models
 
             Id = old.Id;
             OldSpecialityName = old.SpecialityName;
-            FacultyName = old.FacultyName;
-            FacultyId = old.FacultyId;
+            Faculty = old.Faculty;
         }
 
         [Display(Name = "Текущее название")]

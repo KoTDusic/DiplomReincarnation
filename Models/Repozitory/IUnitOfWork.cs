@@ -4,8 +4,15 @@ namespace ElectronDecanat.Repozitory
 {
     public interface IUnitOfWork
     {
+        IRepository<User> Users { get; }
         IRepository<Faculty> Faculties { get; }
         IRepository<Speciality> Specialitys { get; }
         IRepository<Discipline> Disciplines { get; }
+        IRepository<Teacher> Teachers { get; }
+        IRepository<Group> Groups { get; }
+        IRepository<Subgroup> Subgroups { get; }
+        IRepository<Student> Students { get; }
+        IRepository<Lab> Labs { get; }
+        IRepository<LabProgress> LabProgress { get; }
     }
 }

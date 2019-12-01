@@ -1,2 +1,35 @@
-﻿@model object
+﻿@model List<Models.User>
+ @{
+        ViewBag.Title = "Users";
+    }
+
+    <h2>Пользователи</h2>
+    <body>
+        <table id="main-table">
+            <thead>
+                <tr>
+                    <th>Пользователь</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.Username</td>
+                    <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                        @* @Html.ActionLink("Роли", "Roles", new { id = Model[i].Id }) *@
+                    </td>
+                </tr>
+            }
+
+            </tbody>
+        </table>
+        <script type="text/javascript">
+            document.onload = new function () {
+                $('#main-table').DataTable(russian_lang);
+            };
+        </script>
+    </body>
 

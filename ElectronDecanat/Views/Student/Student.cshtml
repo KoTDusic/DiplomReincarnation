@@ -1,4 +1,60 @@
-﻿@model object
+﻿@model List<Models.LabProgress>
 @{
-    ViewBag.Title = "Student search";
+    ViewBag.Title = "Student";
 }
+<body>
+    @if (Model.Count != 0)
+    {
+    <h3>Факультет: @ViewBag.faculty</h3>
+    <h4>Курс-группа-подгруппа: @ViewBag.coors-@ViewBag.group_number-@ViewBag.subgroop_number</h4>
+    <h4>Студент @ViewBag.FIO</h4>
+    <table id="main-table">
+        <thead>
+            <tr>
+                <th>Дисциплина</th>
+                <th>Лабораторная</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        @foreach (var labProgress in Model)
+        {
+            <tr>
+                <td>@labProgress.DisciplineName</td>
+                <td>@labProgress.LabName</td>
+                <td>@labProgress.LabStatus</td>
+            </tr>
+        }
+
+        </tbody>
+    </table>
+    }
+    else
+    {
+        <h3>Не найдено записей в базе для этого студента</h3>
+    }
+    <div>
+        @Html.ActionLink("Назад", "Index", new { name = ViewBag.quarry })
+    </div>
+    <script type="text/javascript">
+        document.onload = new function () {
+            russian_lang.createdRow = function (row, data, index)
+            {
+                var elem=data[2] ;
+                if (~elem.indexOf("Сдано"))
+                {
+                    $('td', row).addClass("green");
+                }
+                else if (~elem.indexOf("Не сдано"))
+                {
+                    $('td', row).addClass("red");
+                }
+                else if (~elem.indexOf("Проверяется")) {
+                    $('td', row).addClass("orange");
+                }
+            }
+            $('#main-table').DataTable(russian_lang);
+        };
+    </script>
+</body>

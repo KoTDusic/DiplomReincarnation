@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ElectronDecanat.Auth;
+using ElectronDecanat.Repozitory;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models;
 
 
 //https://metanit.com/sharp/mvc5/12.4.php роли
@@ -11,14 +13,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace ElectronDecanat.Controllers
 {
     [Authorize(Roles = UserType.Teacher)]
-    public class TeacherController : Controller
+    public class TeacherController : BaseController
     {
-        // GET: Teacher
-        public IActionResult Index()
+        public TeacherController(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            //return View(UnitOfWork.Works.GetAll("where \"Код_преподавателя\"='"+RegistrationUser.Identity.GetUserId()+"'"));
-            return View();
         }
+        // GET: Teacher
+//        public IActionResult Index()
+//        {
+//            //return View(UnitOfWork.Works.GetAll("where \"Код_преподавателя\"='"+RegistrationUser.Identity.GetUserId()+"'"));
+//            return View();
+//        }
         public IActionResult Labs(int discipline_id ,int subgroup_id)
         {
             //Subgroup subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
@@ -67,76 +72,73 @@ namespace ElectronDecanat.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult AddLab(/*Lab item*/)
+        public IActionResult AddLab(Lab item)
         {
-            //try
-            //{
-            //    UnitOfWork.Labs.Create(item);
-            //    return RedirectToAction("LabsOnDisciplineList", new { discipline_id = item.discipline_id });
-            //}
-            //catch
-            //{
-            //    ModelState.AddModelError("lab_name", "ошибка добавления, возможно такая лабораторная уже есть?");
-            //    return View(item);
-            //}
-            return View();
+            try
+            {
+                UnitOfWork.Labs.Create(item);
+                return RedirectToAction("LabsOnDisciplineList", new { discipline_id = item.DisciplineId });
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось добавить лабораторную");
+                return View(item);
+            }
         }
         public IActionResult DeleteLab(int id)
         {
-            //Lab lab = UnitOfWork.Labs.Get(id);
-            //return View(lab);
-            return View();
+            var lab = UnitOfWork.Labs.Get(id);
+            return View(lab);;
         }
         [HttpPost]
-        public IActionResult DeleteLab(/*Lab item*/)
+        public IActionResult DeleteLab(Lab item)
         {
-            //try
-            //{
-            //    UnitOfWork.Labs.Delete(item.id);
-            //    return RedirectToAction("LabsOnDisciplineList", new { discipline_id = item.discipline_id });
-            //}
-            //catch
-            //{
-            //    ModelState.AddModelError("lab_name", "ошибка удаления");
-            //    return View(item);
-            //}
-            return View();
+            try
+            {
+                UnitOfWork.Labs.Delete(item);
+                return RedirectToAction("LabsOnDisciplineList", new { discipline_id = item.DisciplineId });
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось удалить лабораторную");
+                return View(item);
+            }
         }
         public IActionResult EditLab(int id)
         {
-            //NewLab lab = UnitOfWork.Labs.Get(id);
-            //return View(lab);
-            return View();
+            var lab = new RenameLab(UnitOfWork.Labs.Get(id));
+            return View(lab);
         }
         [HttpPost]
-        public IActionResult EditLab(/*NewLab item*/)
+        public IActionResult EditLab(RenameLab item)
         {
-            //try
-            //{
-            //    UnitOfWork.Labs.Update(item);
-            //    return RedirectToAction("LabsOnDisciplineList", new { discipline_id = item.discipline_id });
-            //}
-            //catch
-            //{
-            //    ModelState.AddModelError("lab_name", "ошибка редактирования");
-            //    return View(item);
-            //}
-            return View();
+            try
+            {
+                UnitOfWork.Labs.Update(item);
+                return RedirectToAction("LabsOnDisciplineList", new { discipline_id = item.DisciplineId });
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось изменить лабораторную");
+                return View(item);
+            }
         }
         public IActionResult ChangeLabStatus(int id)
         {
-            //LabProgress lab_progress  = UnitOfWork.LabProgress.Get(id);
-            //lab_progress.Statuses = LabProgress.GetAllStatus();
-            //return View(lab_progress);
-            return View();
+            var lab_progress = UnitOfWork.LabProgress.Get(id);
+            return View(lab_progress);
         }
         [HttpPost]
-        public IActionResult ChangeLabStatus(/*LabProgress item*/)
+        public IActionResult ChangeLabStatus(LabProgress item)
         {
-            //string id = RegistrationUser.Identity.GetUserId();
-            //UnitOfWork.LabProgress.Update(item);
-            //return RedirectToAction("Labs", new { discipline_id = item.discipline_id, subgroup_id=item.subgroop_id });
-            return View();
+            UnitOfWork.LabProgress.Update(item);
+            throw new System.NotImplementedException();
+//            return RedirectToAction("Labs", new { discipline_id = item.DisciplineId, subgroup_id=item.subgroop_id });
+        }
+
+        public IActionResult Index()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

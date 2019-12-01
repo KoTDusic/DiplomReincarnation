@@ -1,0 +1,33 @@
+﻿@model List<Models.Faculty>
+@{
+    ViewBag.Title = "Facultes";
+}
+<body>
+    <table id="main-table">
+        <thead>
+            <tr>
+                <th>Факультет</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+        @foreach (var faculty in Model)
+        {
+            <tr>
+                <td>@faculty.FacultyName</td>
+                <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                    @Html.ActionLink("Подробнее", "Specialitis", new { faculty_id = faculty.Id })
+                </td>
+            </tr>
+        }
+
+        </tbody>
+    </table>
+    <script type="text/javascript">
+        document.onload = new function () {
+            $('#main-table').DataTable(russian_lang);
+        };
+    </script>
+</body>
+

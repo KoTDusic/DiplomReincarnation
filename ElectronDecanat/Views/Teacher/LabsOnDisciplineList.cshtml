@@ -1,2 +1,38 @@
-﻿@model object
+﻿
+@{
+    ViewBag.Title = "LabsOnDisciplineList";
+}
+<body>
+    <table id="main-table">
+        <thead>
+            <tr>
+                <th>Лабораторная</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                for (int i = 0; i < Model.Count; i++)
+                {
+                    <tr>
+                        <td>@Model[i].lab_name</td>
+                        <td class="clicable" onclick="this.firstChild.click()">@Html.ActionLink("Редактировать", "EditLab", new {id = Model[i].id })</td>
+                        <td class="clicable" onclick="this.firstChild.click()">@Html.ActionLink("Удалить", "DeleteLab", new {id = Model[i].id })</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+    <button class="clicable btn btn-primary" onclick="this.getElementsByTagName('a')[0].click()">@Html.ActionLink("Добавить", "AddLab", new { discipline_id = ViewBag.discipline_id })</button>
+    <br />
+    @Html.ActionLink("Назад", "LabsList")
+    <script type="text/javascript">
+        document.onload = new function ()
+        {
+            $('#main-table').DataTable(russian_lang);
+        }
+    </script>
+</body>
+
 

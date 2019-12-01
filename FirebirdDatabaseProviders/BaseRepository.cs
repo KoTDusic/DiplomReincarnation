@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FirebirdDatabaseProviders;
 using LinqToDB;
@@ -8,19 +9,25 @@ namespace ElectronDecanat.Repozitory
 {
     public abstract class BaseRepository<T> : IRepository<T> where T : BaseIdModel
     {
-        public IEnumerable<T> GetAll()
+        public List<T> GetAll(Func<ITable<T>, IEnumerable<T>> filter = null)
         {
             using (var db = new FirebirdDb())
             {
-                return db.GetTable<T>().ToList();
+                var table = db.GetTable<T>();
+                return filter != null
+                    ? filter.Invoke(table).ToList()
+                    : table.ToList();
             }
         }
 
-        public T Get(int id)
+        public virtual T Get(int id, Func<ITable<T>, IEnumerable<T>> predicate = null)
         {
             using (var db = new FirebirdDb())
             {
-                return db.GetTable<T>().FirstOrDefault(faculty => faculty.Id == id);
+                var table = db.GetTable<T>();
+                return predicate != null
+                    ? predicate.Invoke(table).FirstOrDefault(faculty => faculty.Id == id)
+                    : db.GetTable<T>().FirstOrDefault(faculty => faculty.Id == id);
             }
         }
 

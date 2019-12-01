@@ -3,12 +3,10 @@
     ViewBag.Title = "AddSpeciality";
 }
 
-<h2>Добавление специальности на факультет "@Model.FacultyName"</h2>
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
     @Html.HiddenFor(model => model.FacultyId)
-    ;
     <div class="form-horizontal">
         @Html.ValidationSummary(true, "", new {@class = "text-danger"})
         <div class="form-group">

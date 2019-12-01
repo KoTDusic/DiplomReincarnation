@@ -1,4 +1,60 @@
-﻿@model object
+﻿@model List<Models.Student>
 @{
-    ViewBag.Title = "Student";
+    ViewBag.Title = "Index";
 }
+
+<body>
+@using (Html.BeginForm(FormMethod.Get))
+{
+    <div class="form-vertical">
+        @if (ViewBag.querry == "")
+        {
+            <h4>Введите часть ФИО студента для поиска</h4>
+        }
+        <hr/>
+        @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+        <div class="form-group">
+            @Html.Editor("name", new {htmlAttributes = new {@value = ViewBag.querry, @class = "form-control"}})
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Поиск" class="btn btn-primary"/>
+            </div>
+        </div>
+    </div>
+}
+<table id="main-table">
+    <thead>
+    <tr>
+        <th>Студент</th>
+        <th>Курс-группа-подгруппа</th>
+        <th>Факультет</th>
+        <th>Специальность</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach (var student in Model)
+    {
+        <tr>
+            <td>@student.Fio</td>
+            <td>@student.Course-@student.GroupNumber-@student.SubgroupNumber</td>
+            <td>@student.FacultyName</td>
+            <td>@student.SpecialityName</td>
+            <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                @Html.ActionLink("Выбрать", "Student", new {id = student.Id, quarry = ViewBag.querry})
+            </td>
+        </tr>
+    }
+
+    </tbody>
+</table>
+<script type="text/javascript">
+        document.onload = new function ()
+        {
+            $('#main-table').DataTable(russian_lang);
+        }
+    </script>
+</body>

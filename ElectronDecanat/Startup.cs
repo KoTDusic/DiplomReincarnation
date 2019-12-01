@@ -37,7 +37,7 @@ namespace ElectronDecanat
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddTransient<IUnitOfWork, FirebirdUnitOfWork>();
+            services.AddTransient<IUnitOfWork, FireBirdUnitOfWork>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,7 +64,7 @@ namespace ElectronDecanat
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Main}/{action=Index}/{id?}");
+                    template: "{controller=Main}/{action=Index}");
             });
         }
     }

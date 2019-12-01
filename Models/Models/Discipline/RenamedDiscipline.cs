@@ -6,11 +6,13 @@ namespace Models
 {
     public class RenamedDiscipline : Discipline
     {
+        // ReSharper disable once UnusedMember.Global
+        // OrmCtor
         public RenamedDiscipline()
         {
         }
 
-        public RenamedDiscipline(Discipline old)
+        public RenamedDiscipline(Discipline old) : base(old.Speciality)
         {
             if (old == null)
             {
@@ -18,10 +20,10 @@ namespace Models
             }
 
             Id = old.Id;
-            SpecialityId = old.SpecialityId;
+            Speciality = old.Speciality;
             OldDisciplineName = old.DisciplineName;
         }
-        
+
         [Display(Name = "Текущее название")]
         [NotColumn]
         public string OldDisciplineName { get; }

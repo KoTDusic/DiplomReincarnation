@@ -9,20 +9,18 @@ using Models;
 namespace ElectronDecanat.Controllers
 {
     [Authorize(Roles = UserType.Admin)]
-    public class AdminController : Controller
+    public class AdminController : BaseController
     {
-        private readonly IUnitOfWork _unitOfWork;
 
-        public AdminController(IUnitOfWork unitOfWork)
+        public AdminController(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _unitOfWork = unitOfWork ?? throw new ArgumentException(nameof(unitOfWork));
         }
 
         #region FACULTY
 
         public ActionResult Faculties()
         {
-            return View(_unitOfWork.Faculties.GetAll().ToList());
+            return View(UnitOfWork.Faculties.GetAll().ToList());
         }
 
         public ActionResult AddFaculty()
@@ -35,7 +33,7 @@ namespace ElectronDecanat.Controllers
         {
             try
             {
-                _unitOfWork.Faculties.Create(faculty);
+                UnitOfWork.Faculties.Create(faculty);
                 return RedirectToAction("Faculties");
             }
             catch
@@ -47,7 +45,7 @@ namespace ElectronDecanat.Controllers
 
         public ActionResult EditFaculty(int id)
         {
-            var oldFaculty = _unitOfWork.Faculties.Get(id);
+            var oldFaculty = UnitOfWork.Faculties.Get(id);
             var faculty = new RenameFaculty(oldFaculty);
             return View(faculty);
         }
@@ -62,7 +60,7 @@ namespace ElectronDecanat.Controllers
                     return View();
                 }
 
-                _unitOfWork.Faculties.Update(faculty);
+                UnitOfWork.Faculties.Update(faculty);
             }
             catch
             {
@@ -75,7 +73,7 @@ namespace ElectronDecanat.Controllers
 
         public ActionResult DeleteFaculty(int id)
         {
-            var oldFaculty = _unitOfWork.Faculties.Get(id);
+            var oldFaculty = UnitOfWork.Faculties.Get(id);
             return View(oldFaculty);
         }
 
@@ -84,7 +82,7 @@ namespace ElectronDecanat.Controllers
         {
             try
             {
-                _unitOfWork.Faculties.Delete(faculty);
+                UnitOfWork.Faculties.Delete(faculty);
             }
             catch (Exception)
             {
@@ -107,16 +105,18 @@ namespace ElectronDecanat.Controllers
 
         public ActionResult Specialitys(int faculty_id)
         {
+            
             ViewBag.faculty_id = faculty_id;
-            ViewBag.faculty = _unitOfWork.Faculties.Get(faculty_id).FacultyName;
-            return View(_unitOfWork.Specialitys.GetAll()
-                .Where(speciality => speciality.FacultyId == faculty_id).ToList());
+            ViewBag.faculty = UnitOfWork.Faculties.Get(faculty_id).FacultyName;
+            var specialitys = UnitOfWork.Specialitys.GetAll(
+                table => table.Where(speciality => speciality.FacultyId == faculty_id));
+            return View(specialitys);
         }
 
         public ActionResult AddSpeciality(int faculty_id)
         {
-            var faculty = _unitOfWork.Faculties.Get(faculty_id);
-            var speciality = new Speciality {FacultyId = faculty_id, FacultyName = faculty?.FacultyName};
+            var faculty = UnitOfWork.Faculties.Get(faculty_id);
+            var speciality = new Speciality(faculty);
             return View(speciality);
         }
         [HttpPost]
@@ -124,7 +124,7 @@ namespace ElectronDecanat.Controllers
         {
             try 
             {
-                _unitOfWork.Specialitys.Create(speciality);
+                UnitOfWork.Specialitys.Create(speciality);
                 return RedirectToAction("Specialitys", new { faculty_id=speciality.FacultyId });
             }
             catch
@@ -135,8 +135,7 @@ namespace ElectronDecanat.Controllers
         }
         public ActionResult EditSpeciality(int id)
         {
-            var speciality = _unitOfWork.Specialitys.Get(id);
-            speciality.FacultyName = _unitOfWork.Faculties.Get(speciality.FacultyId)?.FacultyName;
+            var speciality = UnitOfWork.Specialitys.Get(id);
             var model = new RenamedSpeciality(speciality);
             return View(model);
         }
@@ -151,7 +150,7 @@ namespace ElectronDecanat.Controllers
                     return View();
                 }
 
-                _unitOfWork.Specialitys.Update(speciality);
+                UnitOfWork.Specialitys.Update(speciality);
                 return RedirectToAction("Specialitys", new {faculty_id = speciality.FacultyId});
             }
             catch
@@ -161,18 +160,19 @@ namespace ElectronDecanat.Controllers
                 
             }
         }
+
         public ActionResult DeleteSpeciality(int id)
         {
-            var speciality = _unitOfWork.Specialitys.Get(id);
-            speciality.FacultyName = _unitOfWork.Faculties.Get(speciality.FacultyId).FacultyName;
+            var speciality = UnitOfWork.Specialitys.Get(id);
             return View(speciality);
         }
+
         [HttpPost]
         public ActionResult DeleteSpeciality(Speciality speciality)
         {
             try
             {
-                _unitOfWork.Specialitys.Delete(speciality);
+                UnitOfWork.Specialitys.Delete(speciality);
                 return RedirectToAction("Specialitys", new { faculty_id = speciality.FacultyId });
             }
             catch (Exception)
@@ -188,80 +188,70 @@ namespace ElectronDecanat.Controllers
 
         public ActionResult Disciplines(int speciality_id)
         {
-            var speciality = _unitOfWork.Specialitys.Get(speciality_id);
-            var faculty = _unitOfWork.Faculties.Get(speciality.FacultyId);
-            ViewBag.faculty_id = faculty.Id;
+            var speciality = UnitOfWork.Specialitys.Get(speciality_id);
+            ViewBag.faculty_id = speciality.FacultyId;
             ViewBag.speciality_id = speciality_id;
-            ViewBag.faculty = faculty.FacultyName;
+            ViewBag.faculty = speciality.FacultyName;
             ViewBag.speciality_name = speciality.SpecialityName;
-            return View(_unitOfWork.Disciplines.GetAll()
-                .Where(discipline => discipline.SpecialityId == speciality_id).ToList());
+            return View(UnitOfWork.Disciplines.GetAll(items => items
+                .Where(discipline => discipline.SpecialityId == speciality_id)));
         }
+
         public ActionResult AddDiscipline(int speciality_id)
         {
-            var speciality = _unitOfWork.Specialitys.Get(speciality_id);
-            var faculty = _unitOfWork.Faculties.Get(speciality.FacultyId);
-            var discipline = new Discipline 
-            {
-                FacultyName = faculty.FacultyName,
-                SpecialityId = speciality.Id,
-                SpecialityName = speciality.SpecialityName
-            };
+            var speciality = UnitOfWork.Specialitys.Get(speciality_id);
+            var discipline = new Discipline(speciality);
             return View(discipline);
         }
+
         [HttpPost]
         public ActionResult AddDiscipline(Discipline discipline)
         {
             try
             {
-                _unitOfWork.Disciplines.Create(discipline);
-                return RedirectToAction("Disciplines", new { speciality_id=discipline.SpecialityId });
+                UnitOfWork.Disciplines.Create(discipline);
+                return RedirectToAction("Disciplines", new {speciality_id = discipline.SpecialityId});
             }
-            catch 
+            catch
             {
                 ModelState.AddModelError(string.Empty, "Не удалось создать дисциплину");
-                return View(discipline); 
+                return View(discipline);
             }
         }
-        
+
         public ActionResult EditDiscipline(int id)
         {
-            var discipline = new RenamedDiscipline(_unitOfWork.Disciplines.Get(id));
-            var speciality = _unitOfWork.Specialitys.Get(discipline.SpecialityId);
-            var faculty = _unitOfWork.Faculties.Get(speciality.FacultyId);
-            discipline.FacultyName = faculty.FacultyName;
-            discipline.SpecialityName = speciality.SpecialityName;
+            var discipline = new RenamedDiscipline(UnitOfWork.Disciplines.Get(id));
             return View(discipline);
         }
+        
         [HttpPost]
         public ActionResult EditDiscipline(RenamedDiscipline discipline)
         {
             try
             {
-                _unitOfWork.Disciplines.Update(discipline);
+                UnitOfWork.Disciplines.Update(discipline);
                 return RedirectToAction("Disciplines", new { speciality_id = discipline.SpecialityId });
             }
             catch 
             {
-                ModelState.AddModelError(string.Empty, "не удалось обновить дисциплину");
+                ModelState.AddModelError(string.Empty, "Не удалось обновить дисциплину");
                 return View(discipline);
             }
         }
+
         public ActionResult DeleteDiscipline(int id)
         {
-            var discipline = _unitOfWork.Disciplines.Get(id);
-            var speciality = _unitOfWork.Specialitys.Get(discipline.SpecialityId);
-            var faculty = _unitOfWork.Faculties.Get(speciality.FacultyId);
-            discipline.FacultyName = faculty.FacultyName;
-            discipline.SpecialityName = speciality.SpecialityName;
+            var discipline = UnitOfWork.Disciplines.Get(id);
             return View(discipline);
         }
+
         [HttpPost]
         public ActionResult DeleteDiscipline(Discipline discipline)
         {
             try
             {
-                _unitOfWork.Disciplines.Delete(discipline);
+                UnitOfWork.Disciplines.Delete(discipline);
                 return RedirectToAction("Disciplines", new { speciality_id = discipline.SpecialityId });
             }
             catch (Exception)
@@ -273,216 +263,189 @@ namespace ElectronDecanat.Controllers
 
         #endregion
 
-        //#region GROUPS
-        //public ActionResult Groups(int speciality_id)
-        //{
-        //    Speciality speciality = UnitOfWork.Specialitys.Get(speciality_id);
-        //    ViewBag.faculty_id = speciality.faculty_code;
-        //    ViewBag.faculty=speciality.faculty_name;
-        //    ViewBag.speciality_name=speciality.speciality_name;
-        //    ViewBag.speciality_number = speciality.speciality_number;
-        //    ViewBag.speciality_id = speciality.id;
-        //    return View(UnitOfWork.Groups.GetAll("where \"���_�������������\"=" + speciality_id));
-        //}
-        //public ActionResult AddGroup(int speciality_id)
-        //{
-        //    Speciality speciality = UnitOfWork.Specialitys.Get(speciality_id);
-        //    Group group = new Group 
-        //    {
-        //        faculty_name = speciality.faculty_name,
-        //        speciality_number = speciality.speciality_number,
-        //        speciality_name = speciality.speciality_name,
-        //        speciality_id = speciality.id
-        //    };
-        //    return View(group);
-        //}
-        //[HttpPost]
-        //public ActionResult AddGroup(Group group)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Groups.Create(group);
-        //        return RedirectToAction("Groups", new { speciality_id = group.speciality_id });
-        //    }
-        //    catch
-        //    {
-        //        ModelState.AddModelError("group_number", "������ ����������, �������� ����� ������ ��� ����?");
-        //        return View(group);
-        //    }
+        #region GROUPS
+        public ActionResult Groups(int speciality_id)
+        {
+            var speciality = UnitOfWork.Specialitys.Get(speciality_id);
+            ViewBag.faculty_id = speciality.FacultyId;
+            ViewBag.faculty=speciality.FacultyName;
+            ViewBag.speciality_name=speciality.SpecialityName;
+            ViewBag.speciality_id = speciality.Id;
+            return View(UnitOfWork.Groups.GetAll().Where(group => group.SpecialityId==speciality_id).ToList());
+        }
+        public ActionResult AddGroup(int speciality_id)
+        {
+            var speciality = UnitOfWork.Specialitys.Get(speciality_id);
+            var group = new Group(speciality);
+            return View(group);
+        }
+        [HttpPost]
+        public ActionResult AddGroup(Group group)
+        {
+            try
+            {
+                UnitOfWork.Groups.Create(group);
+                return RedirectToAction("Groups", new { speciality_id = group.SpecialityId });
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось добавить группу");
+                return View(group);
+            }
 
-        //}
-        //public ActionResult DeleteGroup(int id)
-        //{
-        //    return View(UnitOfWork.Groups.Get(id));
-        //}
-        //[HttpPost]
-        //public ActionResult DeleteGroup(Group group)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Groups.Delete(group.id);
-        //        return RedirectToAction("Groups", new { speciality_id = group.speciality_id });
-        //    }
-        //    catch (Exception)
-        //    {
-        //        ModelState.AddModelError("group_number", "������ ��������, ������ ������ �� �����");
-        //        return View(group);
-        //    }
-        //}
-        //#endregion
-        //#region SUBGROUPS
-        //public ActionResult Subgroups(int group_id)
-        //{
-        //    Group group = UnitOfWork.Groups.Get(group_id);
-        //    ViewBag.speciality_id = group.speciality_id;
-        //    ViewBag.group_id = group_id;
-        //    ViewBag.faculty = group.faculty_name;
-        //    ViewBag.speciality_name = group.speciality_name;
-        //    ViewBag.speciality_number = group.speciality_number;
-        //    ViewBag.coors=group.coors;
-        //    ViewBag.group_number = group.group_number;
-        //    IEnumerable<Subgroup> subgroups = UnitOfWork.Subgroups.GetAll("where \"���_������\"=" + group_id);
-        //    return View(subgroups);
-        //}
-        //public ActionResult AddSubgroup(int group_id)
-        //{
-        //    Group group = UnitOfWork.Groups.Get(group_id);
-        //    Subgroup subgroup = new Subgroup 
-        //    {
-        //        speciality_number = group.speciality_number,
-        //        faculty_name = group.faculty_name,
-        //        speciality_name = group.speciality_name,
-        //        group_id = group.id,
-        //        group_number = group.group_number,
-        //        coors=group.coors
-        //    };
-        //    return View(subgroup);
-        //}
-        //[HttpPost]
-        //public ActionResult AddSubgroup(Subgroup subgroup)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Subgroups.Create(subgroup);
-        //        return RedirectToAction("Subgroups", new { group_id = subgroup.group_id });
-        //    }
-        //    catch
-        //    {
-        //        ModelState.AddModelError("subgroup_number", "������ ����������, �������� ����� ������ ��� ����?");
-        //        return View(subgroup);
-        //    }
+        }
+        public ActionResult DeleteGroup(int id)
+        {
+            return View(UnitOfWork.Groups.Get(id));
+        }
+        [HttpPost]
+        public ActionResult DeleteGroup(Group group)
+        {
+            try
+            {
+                UnitOfWork.Groups.Delete(group);
+                return RedirectToAction("Groups", new { speciality_id = group.SpecialityId });
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось удалить группу");
+                return View(group);
+            }
+        }
+        #endregion
+        #region SUBGROUPS
+        public ActionResult Subgroups(int group_id)
+        {
+            var group = UnitOfWork.Groups.Get(group_id);
+            ViewBag.speciality_id = group.SpecialityId;
+            ViewBag.group_id = group_id;
+            ViewBag.faculty = group.FacultyName;
+            ViewBag.speciality_name = group.SpecialityName;
+            ViewBag.coors=group.Coors;
+            ViewBag.group_number = group.GroupNumber;
+            var subgroups = UnitOfWork.Subgroups.GetAll().Where(subgroup => subgroup.GroupId == group_id).ToList();
+            return View(subgroups);
+        }
+        public ActionResult AddSubgroup(int group_id)
+        {
+            var group = UnitOfWork.Groups.Get(group_id);
+            var subgroup = new Subgroup(group);
+            return View(subgroup);
+        }
+        [HttpPost]
+        public ActionResult AddSubgroup(Subgroup subgroup)
+        {
+            try
+            {
+                UnitOfWork.Subgroups.Create(subgroup);
+                return RedirectToAction("Subgroups", new { group_id = subgroup.GroupId });
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось создать подгруппу");
+                return View(subgroup);
+            }
 
-        //}
-        //public ActionResult DeleteSubgroup(int id)
-        //{
-        //    Subgroup subgroup = UnitOfWork.Subgroups.Get(id);
-        //    return View(subgroup);
-        //}
-        //[HttpPost]
-        //public ActionResult DeleteSubgroup(Subgroup subgroup)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Subgroups.Delete(subgroup.id);
-        //        return RedirectToAction("Subgroups", new { group_id = subgroup.group_id });
-        //    }
-        //    catch (Exception)
-        //    {
-        //        ModelState.AddModelError("subgroup_number", "������ ��������, ������ ��������� �� �����");
-        //        return View(subgroup);
-        //    }
-        //}
-        //#endregion
-        //#region STUDENTS
-        //public ActionResult Students(int subgroup_id)
-        //{
-        //    Subgroup subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
-        //    ViewBag.group_id = subgroup.group_id;
-        //    ViewBag.subgroup_id = subgroup_id;
-        //    ViewBag.faculty = subgroup.faculty_name;
-        //    ViewBag.speciality_name = subgroup.speciality_name;
-        //    ViewBag.speciality_number = subgroup.speciality_number;
-        //    ViewBag.coors = subgroup.coors;
-        //    ViewBag.group_number = subgroup.group_number;
-        //    ViewBag.subgroup_number = subgroup.subgroup_number;
-        //    IEnumerable<Subgroup> subgroups = UnitOfWork.Students.GetAll("where \"���_���������\"=" + subgroup_id);
-        //    return View(subgroups);
-        //}
-        //public ActionResult AddStudent(int subgroup_id)
-        //{
-        //    Subgroup subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
-        //    Student student = new Student
-        //    {
-        //        speciality_number = subgroup.speciality_number,
-        //        faculty_name = subgroup.faculty_name,
-        //        speciality_name = subgroup.speciality_name,
-        //        group_number = subgroup.group_number,
-        //        subgroup_number=subgroup.subgroup_number,
-        //        coors = subgroup.coors,
-        //        subgroup_id=subgroup_id
-        //    };
-        //    return View(student);
-        //}
-        //[HttpPost]
-        //public ActionResult AddStudent(Student student)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Students.Create(student);
-        //        return RedirectToAction("Students", new { subgroup_id = student.subgroup_id });
-        //    }
-        //    catch
-        //    {
-        //        ModelState.AddModelError("FIO", "������ ����������, �������� ����� ������� ��� ����?");
-        //        return View(student);
-        //    }
+        }
+        public ActionResult DeleteSubgroup(int id)
+        {
+            var subgroup = UnitOfWork.Subgroups.Get(id);
+            return View(subgroup);
+        }
+        [HttpPost]
+        public ActionResult DeleteSubgroup(Subgroup subgroup)
+        {
+            try
+            {
+                UnitOfWork.Subgroups.Delete(subgroup);
+                return RedirectToAction("Subgroups", new { group_id = subgroup.GroupId });
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("subgroup_number", "Не удалось удалить подгруппу");
+                return View(subgroup);
+            }
+        }
+        #endregion
+        #region STUDENTS
+        public ActionResult Students(int subgroup_id)
+        {
+            var subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
+            ViewBag.group_id = subgroup.GroupId;
+            ViewBag.subgroup_id = subgroup_id;
+            ViewBag.faculty = subgroup.FacultyName;
+            ViewBag.speciality_name = subgroup.SpecialityName;
+            ViewBag.coors = subgroup.Course;
+            ViewBag.group_number = subgroup.GroupNumber;
+            ViewBag.subgroup_number = subgroup.SubGroupNumber;
+            var students = UnitOfWork.Students.GetAll().Where(student => student.SubGroupId == subgroup_id).ToList();
+            return View(students);
+        }
+        public ActionResult AddStudent(int subgroup_id)
+        {
+            var subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
+            var student = new Student(subgroup);
+            return View(student);
+        }
+        [HttpPost]
+        public ActionResult AddStudent(Student student)
+        {
+            try
+            {
+                UnitOfWork.Students.Create(student);
+                return RedirectToAction("Students", new { subgroup_id = student.SubGroupId });
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось добавить студента");
+                return View(student);
+            }
 
-        //}
-        //public ActionResult EditStudent(int id)
-        //{
-        //    NewStudent student = UnitOfWork.Students.Get(id);
-        //    return View(student);
-        //}
-        //[HttpPost]
-        //public ActionResult EditStudent(NewStudent student)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Students.Update(student);
-        //        return RedirectToAction("Students", new { subgroup_id = student.subgroup_id });
-        //    }
-        //    catch
-        //    {
-        //        ModelState.AddModelError("FIO", "������ ��������������, �������� ����� ������� ��� ����?");
-        //        return View(student);
-        //    }
-        //}
-        //public ActionResult DeleteStudent(int id)
-        //{
-        //    Student student = UnitOfWork.Students.Get(id);
-        //    return View(student);
-        //}
-        //[HttpPost]
-        //public ActionResult DeleteStudent(Student student)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Students.Delete(student.id);
-        //        return RedirectToAction("Students", new { subgroup_id = student.subgroup_id });
-        //    }
-        //    catch (Exception)
-        //    {
-        //        ModelState.AddModelError("FIO", "������ �������� ��������");
-        //        return View(student);
-        //    }
-        //}
-        //#endregion
+        }
+        public ActionResult EditStudent(int id)
+        {
+            var student = new RenameStudent(UnitOfWork.Students.Get(id));
+            return View(student);
+        }
+        [HttpPost]
+        public ActionResult EditStudent(RenameStudent student)
+        {
+            try
+            {
+                UnitOfWork.Students.Update(student);
+                return RedirectToAction("Students", new { subgroup_id = student.SubGroupId });
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось отредактировать студента");
+                return View(student);
+            }
+        }
+        public ActionResult DeleteStudent(int id)
+        {
+            Student student = UnitOfWork.Students.Get(id);
+            return View(student);
+        }
+        [HttpPost]
+        public ActionResult DeleteStudent(Student student)
+        {
+            try
+            {
+                UnitOfWork.Students.Delete(student);
+                return RedirectToAction("Students", new { subgroup_id = student.SubGroupId });
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось удалить студента");
+                return View(student);
+            }
+        }
+        #endregion
         //#region WORKS
         //public ActionResult Works(int subgroup_id)
         //{
         //    Subgroup subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
         //    ViewBag.speciality_name = subgroup.speciality_name;
-        //    ViewBag.speciality_number = subgroup.speciality_number;
         //    ViewBag.coors = subgroup.coors;
         //    ViewBag.group_number = subgroup.group_number;
         //    ViewBag.subgroup_number = subgroup.subgroup_number;
@@ -498,7 +461,6 @@ namespace ElectronDecanat.Controllers
         //    {
         //        faculty_name = subgroup.faculty_name,
         //        speciality_name = subgroup.speciality_name,
-        //        speciality_number=subgroup.speciality_number,
         //        subgroup_id=subgroup.id,
         //        group_number=subgroup.group_number,
         //        subgroup_number=subgroup.subgroup_number,
@@ -547,54 +509,54 @@ namespace ElectronDecanat.Controllers
         //    }
         //}
         //#endregion
-        //#region TEACHERS
+        #region TEACHERS
         public ActionResult Teachers()
         {
-            return View();
+            return View(UnitOfWork.Teachers.GetAll());
         }
-        //public ActionResult EditTeacher(string id)
-        //{
-        //    NewTeacher student = UnitOfWork.Teachers.Get(UserManager,id);
-        //    return View(student);
-        //}
-        //[HttpPost]
-        //public ActionResult EditTeacher(NewTeacher teacher)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Teachers.Update(UserManager,teacher);
-        //        return RedirectToAction("Teachers");
-        //    }
-        //    catch
-        //    {
-        //        ModelState.AddModelError("new_username", "������ ��������������");
-        //        return View(teacher);
-        //    }
-        //}
-        //public ActionResult DeleteTeacher(string id)
-        //{
-        //    Teacher teacher = UnitOfWork.Teachers.Get(UserManager,id);
-        //    return View(teacher);
-        //}
-        //[HttpPost]
-        //public ActionResult DeleteTeacher(Teacher teacher)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Teachers.Delete(UserManager,teacher);
-        //        return RedirectToAction("Teachers");
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        ModelState.AddModelError("error", ParseOracleError(e.Message));
-        //        return View(teacher);
-        //    }
-        //}
-        //#endregion
+        public ActionResult EditTeacher(int id)
+        {
+            var teacher = new RenameTeacher(UnitOfWork.Teachers.Get(id));
+            return View(teacher);
+        }
+        [HttpPost]
+        public ActionResult EditTeacher(RenameTeacher teacher)
+        {
+            try
+            {
+                UnitOfWork.Teachers.Update(teacher);
+                return RedirectToAction("Teachers");
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "не удалось обновить преподавателя");
+                return View(teacher);
+            }
+        }
+        public ActionResult DeleteTeacher(int id)
+        {
+            var teacher = UnitOfWork.Teachers.Get(id);
+            return View(teacher);
+        }
+        [HttpPost]
+        public ActionResult DeleteTeacher(Teacher teacher)
+        {
+            try
+            {
+                UnitOfWork.Teachers.Delete(teacher);
+                return RedirectToAction("Teachers");
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "не удалось удалить преподавателя");
+                return View(teacher);
+            }
+        }
+        #endregion
         //#region ROLES
         public ActionResult Users()
         {
-            return View();
+            return View(UnitOfWork.Users.GetAll());
         }
         //public ActionResult Roles(string id)
         //{

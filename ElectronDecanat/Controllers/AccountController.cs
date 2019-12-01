@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using ElectronDecanat.Auth;
+using ElectronDecanat.Repozitory;
 using FirebirdDatabaseProviders;
 using LinqToDB;
 using LinqToDB.Common;
@@ -14,9 +15,11 @@ using Models;
 
 namespace ElectronDecanat.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
-
+        public AccountController(IUnitOfWork unitOfWork) : base(unitOfWork)
+        {
+        }
         [HttpGet]
         public IActionResult Register()
         {
