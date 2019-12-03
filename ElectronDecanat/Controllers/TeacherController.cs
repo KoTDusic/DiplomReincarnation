@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using ElectronDecanat.Auth;
-using ElectronDecanat.Repozitory;
+﻿using ElectronDecanat.Repozitory;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -12,7 +9,7 @@ using Models;
 
 namespace ElectronDecanat.Controllers
 {
-    [Authorize(Roles = UserType.Teacher)]
+    [Authorize(Roles = Teacher.TeacherRole)]
     public class TeacherController : BaseController
     {
         public TeacherController(IUnitOfWork unitOfWork) : base(unitOfWork)
@@ -88,7 +85,7 @@ namespace ElectronDecanat.Controllers
         public IActionResult DeleteLab(int id)
         {
             var lab = UnitOfWork.Labs.Get(id);
-            return View(lab);;
+            return View(lab);
         }
         [HttpPost]
         public IActionResult DeleteLab(Lab item)

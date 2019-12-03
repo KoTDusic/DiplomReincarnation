@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using ElectronDecanat.Auth;
 using ElectronDecanat.Repozitory;
 using FirebirdDatabaseProviders;
 using LinqToDB;
@@ -28,7 +27,7 @@ namespace ElectronDecanat.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegistrationUser user, string returnUrl)
+        public async Task<IActionResult> Register(RegistrationTeacher user, string returnUrl)
         {
             try
             {
@@ -38,17 +37,18 @@ namespace ElectronDecanat.Controllers
                 }
                 using (var db = new FirebirdDb())
                 {
-                    if (db.Accounts.Any(u => u.Username.Equals(user.Username)))
+                    if (UnitOfWork.Teachers.GetAll().Any(u => u.Username.Equals(user.Username)))
                     {
-                        ModelState.AddModelError("user-exist-error",
+                        ModelState.AddModelError(string.Empty,
                             $"Пользователь с именем {user.Username} уже зарегистрирован.");
                         return View();
                     }
 
+                    user.Role = user.Username == "Admin" ? Teacher.AdminRole : Teacher.UndefinedRole;
                     user.Id = db.InsertWithInt32Identity(user);
                 }
 
-                await Authenticate(user.Username);
+                await Authenticate(user);
 
                 if (returnUrl.IsNullOrEmpty())
                 {
@@ -59,7 +59,8 @@ namespace ElectronDecanat.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                ModelState.AddModelError(string.Empty,
+                    $"Не удалось зарегистрироваться.");
                 return View();
             }
         }
@@ -71,26 +72,26 @@ namespace ElectronDecanat.Controllers
         }
         [
         HttpPost]
-        public async Task<IActionResult> Login(User user, string returnUrl)
+        public async Task<IActionResult> Login(Teacher user, string returnUrl)
         {
             try
             {
-                if (!ModelState.IsValid)
+                if (user.Username == null || user.Password == null)
                 {
                     return View();
                 }
 
-                using (var db = new FirebirdDb())
+                var loggedUser = UnitOfWork.Teachers.GetAll()
+                    .First(u => u.Username.Equals(user.Username)
+                                && u.Password.Equals(user.Password));
+                if (loggedUser == null)
                 {
-                    if (!db.Accounts.Any(u => u.Username.Equals(user.Username) && u.Password.Equals(user.Password)))
-                    {
-                        ModelState.AddModelError("user-login-error",
-                            $"Пользователь с таким именем и паролем не найден");
-                        return View();
-                    }
+                    ModelState.AddModelError(string.Empty,
+                        $"Пользователь с таким именем и паролем не найден");
+                    return View();
                 }
 
-                await Authenticate(user.Username);
+                await Authenticate(loggedUser);
 
                 if (returnUrl.IsNullOrEmpty())
                 {
@@ -113,25 +114,15 @@ namespace ElectronDecanat.Controllers
             return RedirectToAction(nameof(Login), new {ReturnUrl = returnUrl});
         }
 
-        private async Task Authenticate(string userName)
+        private async Task Authenticate(Teacher user)
         {
             // создаем один claim
             var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, userName));
-            if (userName == "Admin")
-            {
-                claims.Add(new Claim(ClaimTypes.Role, UserType.Admin));
-            }
-            else if (userName == "Dekan")
-            {
-                claims.Add(new Claim(ClaimTypes.Role, UserType.Decanat));
-            }
-            else
-            {
-                claims.Add(new Claim(ClaimTypes.Role, UserType.Teacher));
-            };
+            claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, user.Username));
+            claims.Add(new Claim(ClaimTypes.Role, user.Role));
+
             // создаем объект ClaimsIdentity
-            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", 
+            var id = new ClaimsIdentity(claims, "ApplicationCookie", 
                 ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             // установка аутентификационных куки
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));

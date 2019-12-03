@@ -3,7 +3,7 @@ using LinqToDB.Mapping;
 
 namespace Models
 {
-    public class RegistrationUser : User
+    public class RegistrationTeacher : Teacher
     {
         [Display(Name = "Повторите пароль"), Compare(nameof(Password), ErrorMessage = "Пароли не совпадают")]
         [NotColumn]

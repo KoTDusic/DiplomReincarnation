@@ -21,6 +21,8 @@ namespace Models
 
             Id = old.Id;
             OldTeacherName = old.TeacherName;
+            Username = old.Username;
+            Role = old.Role;
         }
 
         [Display(Name = "Текущее имя")]

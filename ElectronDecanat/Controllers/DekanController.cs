@@ -1,12 +1,12 @@
 ﻿using System.Linq;
-using ElectronDecanat.Auth;
 using ElectronDecanat.Repozitory;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models;
 
 namespace ElectronDecanat.Controllers
 {
-    [Authorize(Roles = UserType.Decanat)]
+    [Authorize(Roles = Teacher.DecanatRole)]
     public class DekanController : BaseController
     {
     

@@ -4,7 +4,6 @@ namespace ElectronDecanat.Repozitory
 {
     public interface IUnitOfWork
     {
-        IRepository<User> Users { get; }
         IRepository<Faculty> Faculties { get; }
         IRepository<Speciality> Specialitys { get; }
         IRepository<Discipline> Disciplines { get; }

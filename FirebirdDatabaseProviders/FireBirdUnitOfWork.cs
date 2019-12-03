@@ -7,15 +7,13 @@ namespace ElectronDecanat.Repozitory
         private IRepository<Faculty> _faculties;
         private IRepository<Speciality> _specialitys;
         private IRepository<Discipline> _disciplines;
-        private IRepository<User> _users;
         private IRepository<Teacher> _teachers;
         private IRepository<Group> _groups;
         private IRepository<Student> _students;
         private IRepository<Subgroup> _subgroups;
         private IRepository<Lab> _labs;
         private IRepository<LabProgress> _labProgress;
-
-        public IRepository<User> Users => _users ?? (_users = new UsersRepository());
+        
         public IRepository<Faculty> Faculties => _faculties ?? (_faculties = new FacultiesRepository());
         public IRepository<Speciality> Specialitys => _specialitys ?? (_specialitys = new SpecialityRepozitory());
         public IRepository<Discipline> Disciplines => _disciplines ?? (_disciplines = new DisciplineRepozitory());

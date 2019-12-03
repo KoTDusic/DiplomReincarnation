@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using ElectronDecanat.Auth;
 using ElectronDecanat.Repozitory;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +7,7 @@ using Models;
 
 namespace ElectronDecanat.Controllers
 {
-    [Authorize(Roles = UserType.Admin)]
+    [Authorize(Roles = Teacher.AdminRole)]
     public class AdminController : BaseController
     {
 
@@ -510,10 +509,14 @@ namespace ElectronDecanat.Controllers
         //}
         //#endregion
         #region TEACHERS
+
         public ActionResult Teachers()
         {
-            return View(UnitOfWork.Teachers.GetAll());
+            var teachers = UnitOfWork.Teachers.GetAll(
+                table => table.Where(teacher => teacher.Role == Teacher.TeacherRole));
+            return View(teachers);
         }
+
         public ActionResult EditTeacher(int id)
         {
             var teacher = new RenameTeacher(UnitOfWork.Teachers.Get(id));
@@ -524,7 +527,9 @@ namespace ElectronDecanat.Controllers
         {
             try
             {
-                UnitOfWork.Teachers.Update(teacher);
+                var editedTeacher = UnitOfWork.Teachers.Get(teacher.Id);
+                editedTeacher.TeacherName = teacher.TeacherName;
+                UnitOfWork.Teachers.Update(editedTeacher);
                 return RedirectToAction("Teachers");
             }
             catch
@@ -553,41 +558,34 @@ namespace ElectronDecanat.Controllers
             }
         }
         #endregion
-        //#region ROLES
+        #region ROLES
         public ActionResult Users()
         {
-            return View(UnitOfWork.Users.GetAll());
+            return View(UnitOfWork.Teachers.GetAll());
         }
-        //public ActionResult Roles(string id)
-        //{
-        //    UserRole roles = UnitOfWork.Roles.Get(UserManager, id);
-        //    return View(roles);
-        //}
-        //public ActionResult DeleteRole(string id,string role)
-        //{
-        //    UnitOfWork.Roles.Delete(UserManager, id, role);
-        //    return RedirectToAction("Roles", new { id = id });
-        //}
-        //public ActionResult AddRole(string id)
-        //{
-        //    NewUserRole user = UnitOfWork.Roles.Get(UserManager, id);
-        //    user.roles_list = UnitOfWork.Roles.GetAllRoles();
-        //    return View(user);
-        //}
-        //[HttpPost]
-        //public ActionResult AddRole(NewUserRole user)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Roles.Add(UserManager, user.id,user.new_role);
-        //        return RedirectToAction("Roles", new { id=user.id});
-        //    }
-        //    catch
-        //    {
-        //        ModelState.AddModelError("new_role", "������ ���������� ����");
-        //        return View(user);
-        //    }
-        //}
-        //#endregion
+    
+        public ActionResult SetRole(int id)
+        {
+            var user = UnitOfWork.Teachers.Get(id);
+            return View(user);
+        }
+        [HttpPost]
+        public ActionResult SetRole(Teacher user)
+        {
+            try
+            {
+                var current = UnitOfWork.Teachers.Get(user.Id);
+                current.Role = user.Role;
+                //обновляем только роль, что бы не затереть остальные поля у пользователя
+                UnitOfWork.Teachers.Update(current);
+                return RedirectToAction("Users");
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "Не удалось поменять роль");
+                return View();
+            }
+        }
+        #endregion
     }
 }

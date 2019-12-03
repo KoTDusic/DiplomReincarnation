@@ -1,4 +1,4 @@
-﻿@model List<Models.User>
+﻿@model List<Models.Teacher>
  @{
         ViewBag.Title = "Users";
     }
@@ -9,7 +9,7 @@
             <thead>
                 <tr>
                     <th>Пользователь</th>
-                    <th></th>
+                    <th>Роль</th>
                 </tr>
             </thead>
             <tbody>
@@ -17,9 +17,9 @@
             @foreach (var user in Model)
             {
                 <tr>
-                    <td>@user.Username</td>
+                    <td>@user.TeacherName (@user.Username)</td>
                     <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
-                        @* @Html.ActionLink("Роли", "Roles", new { id = Model[i].Id }) *@
+                        @Html.ActionLink(user.Role, "SetRole", new { id = user.Id })
                     </td>
                 </tr>
             }
