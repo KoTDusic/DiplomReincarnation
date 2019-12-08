@@ -1,0 +1,37 @@
+﻿@model List<Models.DisciplineStudy>
+
+<h3>Факультет: @ViewBag.faculty_name</h3>
+<h4>Специальность: @ViewBag.speciality_name</h4>
+<h4>Курс-Группа-Подгруппа: @ViewBag.coors-@ViewBag.group_number-@ViewBag.subgroup_number</h4>
+<h4>Студент: @ViewBag.student_name</h4>
+<table id="main-table">
+    <thead>
+    <tr>
+        <th>Дисциплина</th>
+        <th>Лабораторных</th>
+        <th>Сдано</th>
+        <th>Не сдано</th>
+        <th>Процент</th>
+    </tr>
+    </thead>
+    <tbody>
+    @{
+        for (int i = 0; i < Model.Count; i++)
+        {
+            <tr>
+                <td>@Model[i].Discipline</td>
+                <td>@Model[i].AllLabs</td>
+                <td>@Model[i].Completed</td>
+                <td>@Model[i].NotCompleted</td>
+                <td>@Model[i].Percent</td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
+@Html.ActionLink("Назад", "Studying", new { speciality_id = ViewBag.speciality_id, subgroup_id = ViewBag.subgroup_id })
+<script type="text/javascript">
+        document.onload = new function () {
+            $('#main-table').DataTable(russian_lang);
+        };
+</script>

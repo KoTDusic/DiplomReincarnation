@@ -7,18 +7,15 @@ using Models;
 
 namespace ElectronDecanat.Repozitory
 {
-    public class LabProgressRepository : BaseRepository<LabProgress>
+    public class DisciplineStudyingRepository : BaseRepository<DisciplineStudy>
     {
-        public override List<LabProgress> GetAll(Func<ITable<LabProgress>, IEnumerable<LabProgress>> filter = null)
+        public List<DisciplineStudy> GetAll(int studentId)
         {
-            if (filter != null)
-            {
-                throw new NotImplementedException();
-            }
-
             using (var db = new FirebirdDb())
             {
                 var table = db.GetTable<Student>()
+                    .LoadWith(student => student.Subgroup.Group.Speciality)
+                    .Where(student => student.Id == studentId)
                     .InnerJoin(db.GetTable<Lab>(),
                         (student, lab) => student.Subgroup.Group.SpecialityId == lab.Discipline.SpecialityId,
                         (student, lab) => new LabProgress
@@ -31,7 +28,7 @@ namespace ElectronDecanat.Repozitory
                             DisciplineId = lab.DisciplineId
                         }).LeftJoin(db.GetTable<Work>(),
                         (progress, work) => work.SubGroupId == progress.Student.SubGroupId &&
-                        progress.DisciplineId == work.DisciplineId,
+                                            progress.DisciplineId == work.DisciplineId,
                         (progress, work) => new LabProgress
                         {
                             Student = progress.Student,
@@ -59,20 +56,25 @@ namespace ElectronDecanat.Repozitory
                             DisciplineId = localProgress.DisciplineId,
                             TeacherId = localProgress.TeacherId,
                             LabStatus = labProgress.LabStatus ?? LabStatus.NotComplete.ToString()
-                        })
+                        }).GroupBy(progress => progress.DisciplineId, progress => progress)
+                    .Select(gr => new DisciplineStudy
+                    {
+                        StudentId = gr.Key,
+                        StudentName = gr.First().StudentName,
+                        Coors = gr.First().Student.Course,
+                        SpecialityId = gr.First().Student.Subgroup.Group.SpecialityId,
+                        GroupNumber = gr.First().Student.GroupNumber,
+                        SubgroupNumber = gr.First().Student.SubgroupNumber,
+                        SubgroupId = gr.First().Student.SubGroupId,
+                        Discipline = gr.First().DisciplineName,
+                        Completed = gr.Count(labProgress => labProgress.LabStatus == LabStatus.Complete.ToString()),
+                        AllLabs = gr.Count(labProgress => labProgress.DisciplineId == gr.Key)
+                    })
                     .ToList();
+
                 LastQuery = db.LastQuery;
                 return table;
             }
-        }
-
-        public override LabProgress Get(int id, Func<ITable<LabProgress>, IEnumerable<LabProgress>> predicate = null)
-        {
-            return base.Get(id, table => table
-                .LoadWith(labProgress => labProgress.Discipline.Speciality.Faculty)
-                .LoadWith(labProgress => labProgress.Teacher)
-                .LoadWith(labProgress => labProgress.Student)
-                .LoadWith(labProgress => labProgress.Lab));
         }
     }
 }

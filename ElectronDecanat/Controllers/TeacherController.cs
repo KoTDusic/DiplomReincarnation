@@ -8,9 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 
-
 //https://metanit.com/sharp/mvc5/12.4.php роли
-
 
 namespace ElectronDecanat.Controllers
 {

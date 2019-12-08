@@ -503,13 +503,21 @@ namespace ElectronDecanat.Controllers
         {
             try
             {
+                if (UnitOfWork.Works.GetAll(works => works.Where(w =>
+                        w.TeacherId == work.TeacherId && w.DisciplineId == work.DisciplineId &&
+                        w.SubGroupId == work.SubGroupId)).FirstOrDefault() != null)
+                {
+                    ModelState.AddModelError(string.Empty, "такая работа уже добавлена");
+                    return AddWork(work.SubGroupId);
+                }
+
                 UnitOfWork.Works.Create(work);
                 return RedirectToAction("Works", new {subgroup_id = work.SubGroupId});
             }
             catch (Exception)
             {
                 ModelState.AddModelError(string.Empty, "не удалось добавить работу");
-                return View(work);
+                return AddWork(work.SubGroupId);
             }
         }
 
@@ -595,7 +603,8 @@ namespace ElectronDecanat.Controllers
 
         public ActionResult Users()
         {
-            return View(UnitOfWork.Teachers.GetAll());
+            return View(UnitOfWork.Teachers.GetAll(table =>
+                table.Where(teacher => teacher.Role != Teacher.AdminRole)));
         }
 
         public ActionResult SetRole(int id)

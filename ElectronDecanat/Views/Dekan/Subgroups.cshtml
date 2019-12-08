@@ -1,0 +1,35 @@
+﻿@model List<Models.Subgroup>
+@{
+    ViewBag.Title = "Subgroups";
+}
+<br/>
+<h3>Факультет: @ViewBag.faculty</h3>
+<h4>Специальность: @ViewBag.speciality_name</h4>
+<h4>Групп (@Model.Count):</h4>
+<table id="main-table">
+    <thead>
+    <tr>
+        <th>Курс-Группа-подгруппа</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach (var subgroup in Model)
+    {
+        <tr>
+            <td>@subgroup.Course-@subgroup.GroupNumber-@subgroup.SubGroupNumber</td>
+            <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                @Html.ActionLink("Успеваемость", "Studying", new {subgroup_id = subgroup.Id, speciality_id = subgroup.Group.SpecialityId})
+            </td>
+        </tr>
+    }
+
+    </tbody>
+</table>
+@Html.ActionLink("Назад", "Specialitis", new {faculty_id = ViewBag.faculty_id})
+<script type="text/javascript">
+            document.onload = new function () {
+                $('#main-table').DataTable(russian_lang);
+            };
+</script>

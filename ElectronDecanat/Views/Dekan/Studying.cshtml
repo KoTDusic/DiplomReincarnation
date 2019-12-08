@@ -1,0 +1,44 @@
+﻿@model List<Models.Study>
+@{
+    ViewBag.Title = "Studing";
+}
+<h3>Факультет: @ViewBag.faculty_name</h3>
+<h4>Специальность: @ViewBag.speciality_name</h4>
+<h4>Курс-Группа-Подгруппа: @ViewBag.coors-@ViewBag.group_number-@ViewBag.subgroup_number</h4>
+<body>
+<table id="main-table">
+    <thead>
+    <tr>
+        <th>ФИО</th>
+        <th>Лабораторных</th>
+        <th>Сдано</th>
+        <th>Не сдано</th>
+        <th>Процент выполнения</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach (var study in Model)
+    {
+        <tr>
+            <td>@study.StudentName</td>
+            <td>@study.AllLabs</td>
+            <td>@study.Completed</td>
+            <td>@study.NotCompleted</td>
+            <td>@study.Percent</td>
+            <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                @Html.ActionLink("Подробнее", "DisciplineStudying", new { student_id = study.StudentId })
+            </td>
+        </tr>
+    }
+
+    </tbody>
+</table>
+@Html.ActionLink("Назад", "Subgroups", new { speciality_id = ViewBag.speciality_id })
+<script type="text/javascript">
+        document.onload = new function () {
+            $('#main-table').DataTable(russian_lang);
+        };
+    </script>
+</body>

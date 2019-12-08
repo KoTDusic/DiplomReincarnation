@@ -7,9 +7,9 @@ using Models;
 
 namespace ElectronDecanat.Repozitory
 {
-    public class LabProgressRepository : BaseRepository<LabProgress>
+    public class StudyingRepository : BaseRepository<Study>
     {
-        public override List<LabProgress> GetAll(Func<ITable<LabProgress>, IEnumerable<LabProgress>> filter = null)
+        public override List<Study> GetAll(Func<ITable<Study>, IEnumerable<Study>> filter = null)
         {
             if (filter != null)
             {
@@ -19,6 +19,7 @@ namespace ElectronDecanat.Repozitory
             using (var db = new FirebirdDb())
             {
                 var table = db.GetTable<Student>()
+                    .LoadWith(student => student.Subgroup.Group.Speciality)
                     .InnerJoin(db.GetTable<Lab>(),
                         (student, lab) => student.Subgroup.Group.SpecialityId == lab.Discipline.SpecialityId,
                         (student, lab) => new LabProgress
@@ -31,7 +32,7 @@ namespace ElectronDecanat.Repozitory
                             DisciplineId = lab.DisciplineId
                         }).LeftJoin(db.GetTable<Work>(),
                         (progress, work) => work.SubGroupId == progress.Student.SubGroupId &&
-                        progress.DisciplineId == work.DisciplineId,
+                                            progress.DisciplineId == work.DisciplineId,
                         (progress, work) => new LabProgress
                         {
                             Student = progress.Student,
@@ -59,20 +60,46 @@ namespace ElectronDecanat.Repozitory
                             DisciplineId = localProgress.DisciplineId,
                             TeacherId = localProgress.TeacherId,
                             LabStatus = labProgress.LabStatus ?? LabStatus.NotComplete.ToString()
-                        })
-                    .ToList();
+                        }).GroupBy(progress => progress.StudentId, progress => progress)
+                    .Select(gr => new Study
+                    {
+                        StudentId = gr.Key,
+                        StudentName = gr.First().StudentName,
+                        Coors = gr.First().Student.Course,
+                        SpecialityId = gr.First().Student.Subgroup.Group.SpecialityId,
+                        GroupNumber = gr.First().Student.GroupNumber,
+                        SubgroupNumber = gr.First().Student.SubgroupNumber,
+                        SubgroupId = gr.First().Student.SubGroupId,
+                        Completed = gr.Count(labProgress => labProgress.LabStatus == LabStatus.Complete.ToString()),
+                        AllLabs = gr.Count(labProgress => labProgress.StudentId == gr.Key)
+                    }).ToList();
                 LastQuery = db.LastQuery;
                 return table;
             }
         }
-
-        public override LabProgress Get(int id, Func<ITable<LabProgress>, IEnumerable<LabProgress>> predicate = null)
-        {
-            return base.Get(id, table => table
-                .LoadWith(labProgress => labProgress.Discipline.Speciality.Faculty)
-                .LoadWith(labProgress => labProgress.Teacher)
-                .LoadWith(labProgress => labProgress.Student)
-                .LoadWith(labProgress => labProgress.Lab));
-        }
     }
 }
+
+//
+//.LeftJoin(db.GetTable<LabProgress>()
+//.LoadWith(student => student.Discipline.Speciality),
+//(student, progress) => student.Id == progress.StudentId,
+//(student, progress) => new Study
+//{
+//StudentId = student.Id,
+//StudentName = student.StudentName,
+//Coors = student.Student.Course,
+//SpecialityId = progress.Discipline.SpecialityId,
+//GroupNumber = student.Student.GroupNumber,
+//SubgroupNumber = student.Student.SubgroupNumber,
+//SubgroupId = student.Student.SubGroupId,
+//Completed = db.GetTable<LabProgress>()
+//.Where(labProgress => labProgress.StudentId== student.Id)
+//.Count(labProgress => labProgress.LabStatus== LabStatus.Complete.ToString()),
+//NotCompleted = db.GetTable<LabProgress>()
+//.Where(labProgress => labProgress.StudentId== student.Id)
+//.Count(labProgress => labProgress.LabStatus!= LabStatus.Complete.ToString()),
+//AllLabs = db
+//    .GetTable<LabProgress>()
+//.Count(labProgress => labProgress.StudentId== student.Id)
+//})

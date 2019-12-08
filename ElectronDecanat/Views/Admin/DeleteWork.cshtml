@@ -14,9 +14,9 @@
         <h4>Курс-группа-подгруппа: @Model.Coors-@Model.GroupNumber-@Model.SubgroupNumber</h4>
         <h4>Преподаватель: @Model.TeacherName</h4>
         <h4>Дисциплина: @Model.DisciplineName</h4>
-        @Html.ValidationSummary()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">
-            <input type="submit" value="Удалить" class="btn btn-default" />
+            <input type="submit" value="Удалить" class="btn btn-danger" />
         </div>
     </div>
 }

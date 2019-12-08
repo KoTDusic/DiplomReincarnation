@@ -14,6 +14,8 @@ namespace ElectronDecanat.Repozitory
         private IRepository<Lab> _labs;
         private IRepository<LabProgress> _labProgress;
         private IRepository<Work> _works;
+        private IRepository<Study> _studying;
+        private IRepository<DisciplineStudy> _disciplineStudying;
         
         public IRepository<Faculty> Faculties => _faculties ?? (_faculties = new FacultiesRepository());
         public IRepository<Speciality> Specialitys => _specialitys ?? (_specialitys = new SpecialityRepository());
@@ -25,11 +27,7 @@ namespace ElectronDecanat.Repozitory
         public IRepository<Lab> Labs => _labs ?? (_labs = new LabRepository());
         public IRepository<LabProgress> LabProgress => _labProgress ?? (_labProgress = new LabProgressRepository());
         public IRepository<Work> Works => _works ?? (_works = new WorkRepository());
-
-
-//        private static RolesRepozitory roles;
-//        public static RolesRepozitory Roles => roles ?? (roles = new RolesRepozitory());
-//        private static StudingRepizitory studing;
-//        public static StudingRepizitory Studing => studing ?? (studing = new StudingRepizitory());
+        public IRepository<Study> Studying => _studying ?? (_studying = new StudyingRepository());
+        public IRepository<DisciplineStudy> DisciplineStudying => _disciplineStudying ?? (_disciplineStudying = new DisciplineStudyingRepository());
     }
 }
