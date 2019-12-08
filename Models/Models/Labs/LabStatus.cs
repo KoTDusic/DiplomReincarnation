@@ -2,9 +2,8 @@
 {
     public enum LabStatus
     {
-        Complete,
         NotComplete,
-        Wait,
-        Error
+        Complete,
+        Wait
     }
 }

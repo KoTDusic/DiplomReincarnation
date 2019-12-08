@@ -5,7 +5,7 @@ using Models;
 
 namespace ElectronDecanat.Repozitory
 {
-    public class SpecialityRepozitory : BaseRepository<Speciality>
+    public class SpecialityRepository : BaseRepository<Speciality>
     {
         public override Speciality Get(int id, Func<ITable<Speciality>, IEnumerable<Speciality>> predicate = null)
         {

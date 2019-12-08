@@ -9,14 +9,17 @@ namespace ElectronDecanat.Repozitory
 {
     public abstract class BaseRepository<T> : IRepository<T> where T : BaseIdModel
     {
-        public List<T> GetAll(Func<ITable<T>, IEnumerable<T>> filter = null)
+        public static string LastQuery { get; protected set; }
+        public virtual List<T> GetAll(Func<ITable<T>, IEnumerable<T>> filter = null)
         {
             using (var db = new FirebirdDb())
             {
                 var table = db.GetTable<T>();
-                return filter != null
+                var result = filter != null
                     ? filter.Invoke(table).ToList()
                     : table.ToList();
+                LastQuery = db.LastQuery;
+                return result;
             }
         }
 
@@ -25,9 +28,11 @@ namespace ElectronDecanat.Repozitory
             using (var db = new FirebirdDb())
             {
                 var table = db.GetTable<T>();
-                return predicate != null
+                var result = predicate != null
                     ? predicate.Invoke(table).FirstOrDefault(faculty => faculty.Id == id)
                     : db.GetTable<T>().FirstOrDefault(faculty => faculty.Id == id);
+                LastQuery = db.LastQuery;
+                return result;
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using LinqToDB.Mapping;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,7 +23,8 @@ namespace Models
         [Column("StudentId")]
         public int StudentId { get; set; }
         [Column("LabProgress")]
-        public LabStatus LabStatus { get; set; }
+        [Display(Name = "Статус лабораторной")]
+        public string LabStatus { get; set; }
         
         [Display(Name = "Имя студента")]
         [NotColumn]
@@ -57,11 +59,31 @@ namespace Models
         {
             var selectList = new List<SelectListItem>
             {
-                new SelectListItem {Value = "Сдано", Text = "Сдано"},
-                new SelectListItem {Value = "Не сдано", Text = "Не сдано"},
-                new SelectListItem {Value = "Проверяется", Text = "Проверяется"}
+                new SelectListItem {Value = Models.LabStatus.Complete.ToString(), Text = "Сдано"},
+                new SelectListItem {Value = Models.LabStatus.NotComplete.ToString(), Text = "Не сдано"},
+                new SelectListItem {Value = Models.LabStatus.Wait.ToString(), Text = "Проверяется"}
             };
             return selectList;
+        }
+
+        public static string TranslateStatus(string status)
+        {
+            if (!Enum.TryParse<LabStatus>(status, out var statusEnum))
+            {
+                return status;
+            }
+
+            switch (statusEnum)
+            {
+                case Models.LabStatus.NotComplete:
+                    return "Не сдано";
+                case Models.LabStatus.Complete:
+                    return "Сдано";
+                case Models.LabStatus.Wait:
+                    return "Проверяется";
+                default:
+                    return status;
+            }
         }
     }
 }

@@ -1,34 +1,31 @@
-﻿
+﻿@model List<Models.Discipline>
 @{
     ViewBag.Title = "LabList";
 }
-<body>
-    <table id="main-table">
-        <thead>
-            <tr>
-                <th>Специальность</th>
-                <th>Дисциплина</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                for (int i = 0; i < Model.Count; i++)
-                {
-                    <tr>
-                        <td>@Model[i].speciality_name</td>
-                        <td>@Model[i].discipline_name</td>
-                        <td class="clicable" onclick="this.firstChild.click()">@Html.ActionLink("Перейти к лабораторным", "LabsOnDisciplineList", new { discipline_id = Model[i].id })</td>
-                    </tr>
-                }
-            }
-        </tbody>
-    </table>
-    <script type="text/javascript">
+<table id="main-table">
+    <thead>
+    <tr>
+        <th>Специальность</th>
+        <th>Дисциплина</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach (var discipline in Model)
+    {
+        <tr>
+            <td>@discipline.SpecialityName</td>
+            <td>@discipline.DisciplineName</td>
+            <td class="clicable" onclick="this.firstChild.click()">@Html.ActionLink("Перейти к лабораторным", "LabsOnDisciplineList", new {discipline_id = discipline.Id})</td>
+        </tr>
+    }
+
+    </tbody>
+</table>
+<script type="text/javascript">
         document.onload = new function ()
         {
             $('#main-table').DataTable(russian_lang);
         }
     </script>
-</body>
-

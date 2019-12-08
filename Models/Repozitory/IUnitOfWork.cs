@@ -13,5 +13,6 @@ namespace ElectronDecanat.Repozitory
         IRepository<Student> Students { get; }
         IRepository<Lab> Labs { get; }
         IRepository<LabProgress> LabProgress { get; }
+        IRepository<Work> Works { get; }
     }
 }

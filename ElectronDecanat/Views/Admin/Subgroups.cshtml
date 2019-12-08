@@ -6,46 +6,44 @@
 <h4>Специальность: @ViewBag.speciality_name</h4>
 <h4>Курс-группа: @ViewBag.coors-@ViewBag.group_number</h4>
 <h4>Подгрупп (@Model.Count):</h4>
-<body>
-    <table id="main-table">
-        <thead>
+<table id="main-table">
+    <thead>
+    <tr>
+        <th>Подгруппа</th>
+        <th></th>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @{
+        for (var i = 0; i < Model.Count; i++)
+        {
             <tr>
-                <th>Подгруппа</th>
-                <th></th>
-                <th></th>
-                <th></th>
+                <td>@Model[i].SubGroupNumber</td>
+                <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                    @Html.ActionLink("Подробнее", "Students", new {subgroup_id = Model[i].Id})
+                </td>
+                <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                    @Html.ActionLink("Редактирование нагрузки", "Works", new {subgroup_id = Model[i].Id})
+                </td>
+                <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                    @Html.ActionLink("Удалить", "DeleteSubgroup", new {id = Model[i].Id})
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @{
-                for (int i = 0; i < Model.Count; i++)
-                {
-                    <tr>
-                        <td>@Model[i].SubGroupNumber</td>
-                        <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
-                            @Html.ActionLink("Подробнее", "Students", new { subgroup_id = Model[i].Id })
-                        </td>
-                        <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
-                            @* @Html.ActionLink("Редактирование нагрузки", "Works", new { subgroup_id = Model[i].id }) *@
-                        </td>
-                        <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
-                            @Html.ActionLink("Удалить", "DeleteSubgroup", new {id=Model[i].Id})
-                        </td>
-                    </tr>
-                }
-            }
-        </tbody>
-    </table>
-    <div>
-        <button class="clicable btn" onclick="this.getElementsByTagName('a')[0].click()">
-            @Html.ActionLink("Добавить", "AddSubgroup", new { group_id = ViewBag.group_id })
-        </button>
-    </div>
-    <br />
-    @Html.ActionLink("Назад", "Groups", new { speciality_id = ViewBag.speciality_id })
-    <script type="text/javascript">
+        }
+    }
+    </tbody>
+</table>
+<div>
+    <button class="clicable btn" onclick="this.getElementsByTagName('a')[0].click()">
+        @Html.ActionLink("Добавить", "AddSubgroup", new {group_id = ViewBag.group_id})
+    </button>
+</div>
+<br/>
+@Html.ActionLink("Назад", "Groups", new {speciality_id = ViewBag.speciality_id})
+<script type="text/javascript">
             document.onload = new function () {
                 $('#main-table').DataTable(russian_lang);
             };
     </script>
-</body>

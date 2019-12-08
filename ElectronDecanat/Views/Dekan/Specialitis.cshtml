@@ -2,37 +2,35 @@
 @{
     ViewBag.Title = "Specialitis";
 }
-<br />
+<br/>
 <h3>Специальности @ViewBag.faculty_name</h3>
 <h4>Специальностей (@Model.Count):</h4>
-<body>
-    <table id="main-table">
-        <thead>
-            <tr>
-                <th>Специальность</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
+<table id="main-table">
+    <thead>
+    <tr>
+        <th>Специальность</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
 
-        @foreach (var speciality in Model)
-        {
-            <tr>
-                <td>@speciality.SpecialityName</td>
-                <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
-                    @Html.ActionLink("Подгруппы", "Subgroups", new { speciality_id = speciality.Id })
-                </td>
-            </tr>
-        }
+    @foreach (var speciality in Model)
+    {
+        <tr>
+            <td>@speciality.SpecialityName</td>
+            <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                @Html.ActionLink("Подгруппы", "Subgroups", new {speciality_id = speciality.Id})
+            </td>
+        </tr>
+    }
 
-        </tbody>
-    </table>
-    <div>
-        @* @Html.ActionLink("Назад", "Facultes") *@
-    </div>
-    <script type="text/javascript">
+    </tbody>
+</table>
+<div>
+    @* @Html.ActionLink("Назад", "Facultes") *@
+</div>
+<script type="text/javascript">
         document.onload=new function () {
             $('#main-table').DataTable(russian_lang);
         };
     </script>
-</body>

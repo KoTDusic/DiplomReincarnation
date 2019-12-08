@@ -1,0 +1,40 @@
+﻿@model Models.Work
+@{
+    ViewBag.Title = "AddWork";
+}
+<h3>Добавление нагрузки преподавателя</h3>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.SubGroupId)
+    <div class="form-horizontal">
+        <h4>Факультет: @Model.FacultyName</h4>
+        <h4>Специальность: @Model.SpecialityName</h4>
+        <h4>Курс-группа-подгруппа: @Model.Coors-@Model.GroupNumber-@Model.SubgroupNumber</h4>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Teacher, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => Model.TeacherId, Model.Teachers, "Выберите преподавателя...",
+                    new {@class = "form-control"})
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.DisciplineName, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => Model.DisciplineId, Model.Disciplines, "Выберите дисциплину...",
+                    new {@class = "form-control"})
+            </div>
+        </div>
+        @Html.ValidationSummary()
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Назначить" class="btn btn-primary"/>
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Назад", "Works", new {subgroup_id = Model.SubGroupId})
+</div>

@@ -54,3 +54,67 @@ body {
   height: 60px;
   line-height: 60px; /* Vertically center the text there */
 }
+
+.page_menu>div {
+  padding-left: 20px;
+  display: none;
+}
+.page_menu>span{
+  cursor: pointer;
+  font-size:20px;
+}
+.page_menu::before {
+  content: '▶ ';
+  color: green;
+}
+.page_menu_open::before {
+  content: '▼ ';
+}
+.page_menu_open>span{
+  font-size:20px;
+  cursor: pointer;
+}
+.page_menu_open>div {
+  display: block;
+}
+
+td {
+  border: 1px solid black;
+  padding: 10px;
+}
+th {
+  border: 1px solid black;
+  padding: 10px;
+  font-size: 14px;
+}
+.clicable:hover
+{
+  cursor:pointer;
+  background-color:lightgray;
+  text-decoration:none;
+}
+.clicable a
+{
+  text-decoration:none;
+  color:blue;
+}
+.clicable a:hover
+{
+  color:blue;
+}
+.clicable a:visited
+{
+  color:blue;
+}
+.red
+{
+  background-color:#FFA07A;
+}
+.orange
+{
+  background-color:#FFD700;
+}
+.green
+{
+  background-color:#9ACD32;
+}

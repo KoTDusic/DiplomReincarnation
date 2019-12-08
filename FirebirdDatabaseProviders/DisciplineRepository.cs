@@ -5,7 +5,7 @@ using Models;
 
 namespace ElectronDecanat.Repozitory
 {
-    public class DisciplineRepozitory: BaseRepository<Discipline>
+    public class DisciplineRepository: BaseRepository<Discipline>
     {
         public override Discipline Get(int id, Func<ITable<Discipline>, IEnumerable<Discipline>> predicate = null)
         {

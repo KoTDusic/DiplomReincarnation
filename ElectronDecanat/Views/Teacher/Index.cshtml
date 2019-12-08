@@ -1,0 +1,37 @@
+﻿@model System.Collections.Generic.List<Models.Work>
+@{
+    ViewBag.Title = "Преподаватель";
+}
+<table id="main-table">
+    <thead>
+    <tr>
+        <th>Преподаватель</th>
+        <th>Специальность</th>
+        <th>Дисциплина</th>
+        <th>Курс-группа-подгруппа</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @{
+        for (var i = 0; i < Model.Count; i++)
+        {
+            <tr>
+                <td>@Model[i].TeacherName</td>
+                <td>@Model[i].SpecialityName</td>
+                <td>@Model[i].DisciplineName</td>
+                <td>@Model[i].Coors-@Model[i].GroupNumber-@Model[i].SubgroupNumber</td>
+                <td class="clicable" onclick="this.firstChild.click()">
+                    @Html.ActionLink("Подробнее", "Labs",
+                        new {discipline_id = Model[i].DisciplineId, subgroup_id = Model[i].SubGroupId})</td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
+<script type="text/javascript">
+        document.onload = new function () 
+        {
+            $('#main-table').DataTable(russian_lang);
+        }
+    </script>

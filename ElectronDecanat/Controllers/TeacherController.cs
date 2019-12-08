@@ -1,4 +1,9 @@
-﻿using ElectronDecanat.Repozitory;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using ElectronDecanat.Repozitory;
+using LinqToDB;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -15,58 +20,62 @@ namespace ElectronDecanat.Controllers
         public TeacherController(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }
-        // GET: Teacher
-//        public IActionResult Index()
-//        {
-//            //return View(UnitOfWork.Works.GetAll("where \"Код_преподавателя\"='"+RegistrationUser.Identity.GetUserId()+"'"));
-//            return View();
-//        }
         public IActionResult Labs(int discipline_id ,int subgroup_id)
         {
-            //Subgroup subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
-            //Discipline discipline = UnitOfWork.Disciplines.Get(discipline_id);
-            //ViewBag.coors = subgroup.coors;
-            //ViewBag.group_number = subgroup.group_number;
-            //ViewBag.subgroup_number = subgroup.subgroup_number;
-            //ViewBag.discipline_name = discipline.discipline_name;
-            //IEnumerable<LabProgress> array = UnitOfWork.LabProgress.GetAll("WHERE \"Код_преподавателя\" = '" + RegistrationUser.Identity.GetUserId() + "' AND \"Код_дисциплины\"=" + discipline_id + " and \"Код_подгруппы\"=" + subgroup_id);
-            //Dictionary<string,List<LabProgress>> grouped_students = new Dictionary<string,List<LabProgress>>();
-            //List<LabProgress> current_list;
-            //for(int i=0;i<array.Count();i++)
-            //{
-            //    if(!grouped_students.ContainsKey(array.ElementAt(i).student_name))
-            //        grouped_students.Add(array.ElementAt(i).student_name, new List<LabProgress>());
-            //    grouped_students.TryGetValue(array.ElementAt(i).student_name, out current_list);
-            //    current_list.Add(array.ElementAt(i));
-            //}
-            //var data = grouped_students.OrderBy(element => element.Key).ToList();
-            //return View(grouped_students.OrderBy(element => element.Key).ToList());
-            return View();
+            var subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
+            var discipline = UnitOfWork.Disciplines.Get(discipline_id);
+            ViewBag.coors = subgroup.Course;
+            ViewBag.group_number = subgroup.GroupNumber;
+            ViewBag.subgroup_number = subgroup.SubGroupNumber;
+            ViewBag.discipline_name = discipline.DisciplineName;
+            var id = GetCurrentUserId();
+            IEnumerable<LabProgress> array = UnitOfWork.LabProgress.GetAll()
+                .Where(progress => progress.TeacherId == id &&
+                                   progress.DisciplineId == discipline_id && 
+                                   progress.Student.SubGroupId==subgroup_id)
+                .ToList();
+            
+            var groupedStudents = new Dictionary<string,List<LabProgress>>();
+            for (var i = 0; i < array.Count(); i++)
+            {
+                if (!groupedStudents.ContainsKey(array.ElementAt(i).StudentName))
+                {
+                    groupedStudents.Add(array.ElementAt(i).StudentName, new List<LabProgress>());
+                }
+                
+                groupedStudents.TryGetValue(array.ElementAt(i).StudentName, out var currentList);
+                currentList?.Add(array.ElementAt(i));
+            }
+
+            var data = groupedStudents.OrderBy(element => element.Key).ToList();
+            return View(data);
         }
         public IActionResult LabsList()
         {
-            //List<Discipline> disciplines = UnitOfWork.Disciplines.getTeacherDisciplines(RegistrationUser.Identity.GetUserId());
-            //return View(disciplines);
-            return View();
+            var test = UnitOfWork.Works.GetAll(works =>
+                works.LoadWith(work => work.Discipline.Speciality)
+                .Where(work => work.TeacherId == GetCurrentUserId()))
+                .Select(work => work.Discipline).Distinct().ToList();
+            return View(test);
         }
+
         public IActionResult LabsOnDisciplineList(int discipline_id)
         {
-            //string name = RegistrationUser.Identity.GetUserId();
-            //ViewBag.discipline_id = discipline_id;
-            //return View(UnitOfWork.Labs.GetAll("where \"Код_дисциплины\" =" + discipline_id));
-            return View();
+            var name = GetCurrentUserId().ToString();
+            ViewBag.discipline_id = discipline_id;
+            return View(UnitOfWork.Labs.GetAll(labs => labs
+                .Where(lab => lab.DisciplineId == discipline_id)));
         }
+
         public ActionResult AddLab(int discipline_id)
         {
-            //Discipline discipline = UnitOfWork.Disciplines.Get(discipline_id);
-            //Lab lab = new Lab()
-            //{
-            //    discipline = discipline.discipline_name,
-            //    discipline_id = discipline.id,
-            //    speciality = discipline.speciality_name
-            //};
-            //return View(lab);
-            return View();
+            var discipline = UnitOfWork.Disciplines.Get(discipline_id);
+            var lab = new Lab
+            {
+                Discipline = discipline,
+                DisciplineId = discipline.Id
+            };
+            return View(lab);
         }
         [HttpPost]
         public IActionResult AddLab(Lab item)
@@ -120,22 +129,65 @@ namespace ElectronDecanat.Controllers
                 return View(item);
             }
         }
-        public IActionResult ChangeLabStatus(int id)
+        public IActionResult ChangeLabStatus(int student_id, int lab_id)
         {
-            var lab_progress = UnitOfWork.LabProgress.Get(id);
-            return View(lab_progress);
+            var teacher = UnitOfWork.Teachers.Get(GetCurrentUserId());
+            var lab = UnitOfWork.Labs.Get(lab_id);
+            var student = UnitOfWork.Students.Get(student_id);
+            var labProgress = UnitOfWork.LabProgress
+                .GetAll()
+                .FirstOrDefault(progress => progress.StudentId == student_id
+                                            && progress.LabId == lab_id
+                                            && progress.TeacherId == teacher.Id);
+            labProgress = labProgress ?? new LabProgress
+            {
+                Teacher = teacher,
+                TeacherId = teacher.Id,
+                Student = student,
+                StudentId = student.Id,
+                Lab = lab,
+                DisciplineId = lab.DisciplineId
+            };
+            
+                return View(labProgress);
         }
+
         [HttpPost]
         public IActionResult ChangeLabStatus(LabProgress item)
         {
-            UnitOfWork.LabProgress.Update(item);
-            throw new System.NotImplementedException();
-//            return RedirectToAction("Labs", new { discipline_id = item.DisciplineId, subgroup_id=item.subgroop_id });
+            var labProgress = UnitOfWork.LabProgress.Get(item.Id);
+            if (labProgress != null)
+            {
+                UnitOfWork.LabProgress.Update(item);
+            }
+            else
+            {
+                UnitOfWork.LabProgress.Create(item);
+            }
+
+            return RedirectToAction("Labs", new
+            {
+                discipline_id = item.DisciplineId,
+                subgroup_id = item.Student.SubGroupId
+            });
         }
 
         public IActionResult Index()
         {
-            throw new System.NotImplementedException();
+            var id = GetCurrentUserId();
+            var items = UnitOfWork.Works.GetAll(
+                works => works
+                    .LoadWith(work => work.Teacher)
+                    .LoadWith(work => work.Discipline.Speciality)
+                    .LoadWith(work => work.Subgroup.Group)
+                    .Where(work => work.TeacherId == id));
+            return View(items);
+        }    
+
+        private int GetCurrentUserId()
+        {
+            return Convert.ToInt32(HttpContext.User.Claims
+                .FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value);
         }
     }
 }

@@ -35,5 +35,15 @@ namespace Models
         
         [LinqToDB.Mapping.Association(ThisKey = nameof(SpecialityId), OtherKey = nameof(Id))]
         public Speciality Speciality { get; set; }
+        
+        public override bool Equals(object obj)
+        {
+            return (obj as Discipline)?.Id == Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id;
+        }
     }
 }

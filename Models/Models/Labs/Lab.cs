@@ -11,8 +11,10 @@ namespace Models
         public Lab()
         {
         }
+        [Column("DisciplineId")]
         public int DisciplineId { get; set; }
 
+        [Column("LabName")]
         [Display(Name = "Лабораторная")] 
         public string LabName { get; set; }
         [NotColumn]

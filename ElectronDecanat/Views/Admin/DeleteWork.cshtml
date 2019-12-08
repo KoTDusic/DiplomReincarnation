@@ -1,0 +1,26 @@
+﻿@model Models.Work
+@{
+    ViewBag.Title = "DeleteWork";
+}
+<h3>Удаление нагрузки преподавателя</h3>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.SubGroupId)
+    <div class="form-horizontal">
+        <h4>Факультет: @Model.FacultyName</h4>
+        <h4>Специальность: @Model.SpecialityName</h4>
+        <h4>Курс-группа-подгруппа: @Model.Coors-@Model.GroupNumber-@Model.SubgroupNumber</h4>
+        <h4>Преподаватель: @Model.TeacherName</h4>
+        <h4>Дисциплина: @Model.DisciplineName</h4>
+        @Html.ValidationSummary()
+        <div class="form-group">
+            <input type="submit" value="Удалить" class="btn btn-default" />
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Назад", "Works", new { subgroup_id = Model.SubGroupId })
+</div>

@@ -57,7 +57,7 @@ namespace ElectronDecanat.Controllers
 
                 return Redirect(returnUrl);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ModelState.AddModelError(string.Empty,
                     $"Не удалось зарегистрироваться.");
@@ -120,6 +120,7 @@ namespace ElectronDecanat.Controllers
             var claims = new List<Claim>();
             claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, user.Username));
             claims.Add(new Claim(ClaimTypes.Role, user.Role));
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
 
             // создаем объект ClaimsIdentity
             var id = new ClaimsIdentity(claims, "ApplicationCookie", 

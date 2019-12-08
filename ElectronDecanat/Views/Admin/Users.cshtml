@@ -1,35 +1,32 @@
 ﻿@model List<Models.Teacher>
- @{
-        ViewBag.Title = "Users";
+@{
+    ViewBag.Title = "Users";
+}
+
+<h2>Пользователи</h2>
+<table id="main-table">
+    <thead>
+    <tr>
+        <th>Пользователь</th>
+        <th>Роль</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.TeacherName (@user.Username)</td>
+            <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
+                @Html.ActionLink(user.Role, "SetRole", new {id = user.Id})
+            </td>
+        </tr>
     }
 
-    <h2>Пользователи</h2>
-    <body>
-        <table id="main-table">
-            <thead>
-                <tr>
-                    <th>Пользователь</th>
-                    <th>Роль</th>
-                </tr>
-            </thead>
-            <tbody>
-
-            @foreach (var user in Model)
-            {
-                <tr>
-                    <td>@user.TeacherName (@user.Username)</td>
-                    <td class="clicable" onclick="this.getElementsByTagName('a')[0].click()">
-                        @Html.ActionLink(user.Role, "SetRole", new { id = user.Id })
-                    </td>
-                </tr>
-            }
-
-            </tbody>
-        </table>
-        <script type="text/javascript">
+    </tbody>
+</table>
+<script type="text/javascript">
             document.onload = new function () {
                 $('#main-table').DataTable(russian_lang);
             };
         </script>
-    </body>
-

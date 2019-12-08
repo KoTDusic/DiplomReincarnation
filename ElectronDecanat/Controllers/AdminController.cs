@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
 using ElectronDecanat.Repozitory;
+using LinqToDB;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Models;
 
 namespace ElectronDecanat.Controllers
@@ -10,7 +12,6 @@ namespace ElectronDecanat.Controllers
     [Authorize(Roles = Teacher.AdminRole)]
     public class AdminController : BaseController
     {
-
         public AdminController(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }
@@ -104,7 +105,6 @@ namespace ElectronDecanat.Controllers
 
         public ActionResult Specialitys(int faculty_id)
         {
-            
             ViewBag.faculty_id = faculty_id;
             ViewBag.faculty = UnitOfWork.Faculties.Get(faculty_id).FacultyName;
             var specialitys = UnitOfWork.Specialitys.GetAll(
@@ -118,13 +118,14 @@ namespace ElectronDecanat.Controllers
             var speciality = new Speciality(faculty);
             return View(speciality);
         }
+
         [HttpPost]
         public ActionResult AddSpeciality(Speciality speciality)
         {
-            try 
+            try
             {
                 UnitOfWork.Specialitys.Create(speciality);
-                return RedirectToAction("Specialitys", new { faculty_id=speciality.FacultyId });
+                return RedirectToAction("Specialitys", new {faculty_id = speciality.FacultyId});
             }
             catch
             {
@@ -132,13 +133,14 @@ namespace ElectronDecanat.Controllers
                 return View(speciality);
             }
         }
+
         public ActionResult EditSpeciality(int id)
         {
             var speciality = UnitOfWork.Specialitys.Get(id);
             var model = new RenamedSpeciality(speciality);
             return View(model);
         }
-        
+
         [HttpPost]
         public ActionResult EditSpeciality(RenamedSpeciality speciality)
         {
@@ -155,8 +157,7 @@ namespace ElectronDecanat.Controllers
             catch
             {
                 ModelState.AddModelError(string.Empty, "не удалось обновить специальность");
-                return View(speciality); 
-                
+                return View(speciality);
             }
         }
 
@@ -172,7 +173,7 @@ namespace ElectronDecanat.Controllers
             try
             {
                 UnitOfWork.Specialitys.Delete(speciality);
-                return RedirectToAction("Specialitys", new { faculty_id = speciality.FacultyId });
+                return RedirectToAction("Specialitys", new {faculty_id = speciality.FacultyId});
             }
             catch (Exception)
             {
@@ -223,16 +224,16 @@ namespace ElectronDecanat.Controllers
             var discipline = new RenamedDiscipline(UnitOfWork.Disciplines.Get(id));
             return View(discipline);
         }
-        
+
         [HttpPost]
         public ActionResult EditDiscipline(RenamedDiscipline discipline)
         {
             try
             {
                 UnitOfWork.Disciplines.Update(discipline);
-                return RedirectToAction("Disciplines", new { speciality_id = discipline.SpecialityId });
+                return RedirectToAction("Disciplines", new {speciality_id = discipline.SpecialityId});
             }
-            catch 
+            catch
             {
                 ModelState.AddModelError(string.Empty, "Не удалось обновить дисциплину");
                 return View(discipline);
@@ -251,7 +252,7 @@ namespace ElectronDecanat.Controllers
             try
             {
                 UnitOfWork.Disciplines.Delete(discipline);
-                return RedirectToAction("Disciplines", new { speciality_id = discipline.SpecialityId });
+                return RedirectToAction("Disciplines", new {speciality_id = discipline.SpecialityId});
             }
             catch (Exception)
             {
@@ -263,47 +264,51 @@ namespace ElectronDecanat.Controllers
         #endregion
 
         #region GROUPS
+
         public ActionResult Groups(int speciality_id)
         {
             var speciality = UnitOfWork.Specialitys.Get(speciality_id);
             ViewBag.faculty_id = speciality.FacultyId;
-            ViewBag.faculty=speciality.FacultyName;
-            ViewBag.speciality_name=speciality.SpecialityName;
+            ViewBag.faculty = speciality.FacultyName;
+            ViewBag.speciality_name = speciality.SpecialityName;
             ViewBag.speciality_id = speciality.Id;
-            return View(UnitOfWork.Groups.GetAll().Where(group => group.SpecialityId==speciality_id).ToList());
+            return View(UnitOfWork.Groups.GetAll().Where(group => group.SpecialityId == speciality_id).ToList());
         }
+
         public ActionResult AddGroup(int speciality_id)
         {
             var speciality = UnitOfWork.Specialitys.Get(speciality_id);
             var group = new Group(speciality);
             return View(group);
         }
+
         [HttpPost]
         public ActionResult AddGroup(Group group)
         {
             try
             {
                 UnitOfWork.Groups.Create(group);
-                return RedirectToAction("Groups", new { speciality_id = group.SpecialityId });
+                return RedirectToAction("Groups", new {speciality_id = group.SpecialityId});
             }
             catch
             {
                 ModelState.AddModelError(string.Empty, "Не удалось добавить группу");
                 return View(group);
             }
-
         }
+
         public ActionResult DeleteGroup(int id)
         {
             return View(UnitOfWork.Groups.Get(id));
         }
+
         [HttpPost]
         public ActionResult DeleteGroup(Group group)
         {
             try
             {
                 UnitOfWork.Groups.Delete(group);
-                return RedirectToAction("Groups", new { speciality_id = group.SpecialityId });
+                return RedirectToAction("Groups", new {speciality_id = group.SpecialityId});
             }
             catch (Exception)
             {
@@ -311,8 +316,11 @@ namespace ElectronDecanat.Controllers
                 return View(group);
             }
         }
+
         #endregion
+
         #region SUBGROUPS
+
         public ActionResult Subgroups(int group_id)
         {
             var group = UnitOfWork.Groups.Get(group_id);
@@ -320,44 +328,47 @@ namespace ElectronDecanat.Controllers
             ViewBag.group_id = group_id;
             ViewBag.faculty = group.FacultyName;
             ViewBag.speciality_name = group.SpecialityName;
-            ViewBag.coors=group.Coors;
+            ViewBag.coors = group.Coors;
             ViewBag.group_number = group.GroupNumber;
             var subgroups = UnitOfWork.Subgroups.GetAll().Where(subgroup => subgroup.GroupId == group_id).ToList();
             return View(subgroups);
         }
+
         public ActionResult AddSubgroup(int group_id)
         {
             var group = UnitOfWork.Groups.Get(group_id);
             var subgroup = new Subgroup(group);
             return View(subgroup);
         }
+
         [HttpPost]
         public ActionResult AddSubgroup(Subgroup subgroup)
         {
             try
             {
                 UnitOfWork.Subgroups.Create(subgroup);
-                return RedirectToAction("Subgroups", new { group_id = subgroup.GroupId });
+                return RedirectToAction("Subgroups", new {group_id = subgroup.GroupId});
             }
             catch
             {
                 ModelState.AddModelError(string.Empty, "Не удалось создать подгруппу");
                 return View(subgroup);
             }
-
         }
+
         public ActionResult DeleteSubgroup(int id)
         {
             var subgroup = UnitOfWork.Subgroups.Get(id);
             return View(subgroup);
         }
+
         [HttpPost]
         public ActionResult DeleteSubgroup(Subgroup subgroup)
         {
             try
             {
                 UnitOfWork.Subgroups.Delete(subgroup);
-                return RedirectToAction("Subgroups", new { group_id = subgroup.GroupId });
+                return RedirectToAction("Subgroups", new {group_id = subgroup.GroupId});
             }
             catch (Exception)
             {
@@ -365,8 +376,11 @@ namespace ElectronDecanat.Controllers
                 return View(subgroup);
             }
         }
+
         #endregion
+
         #region STUDENTS
+
         public ActionResult Students(int subgroup_id)
         {
             var subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
@@ -380,39 +394,42 @@ namespace ElectronDecanat.Controllers
             var students = UnitOfWork.Students.GetAll().Where(student => student.SubGroupId == subgroup_id).ToList();
             return View(students);
         }
+
         public ActionResult AddStudent(int subgroup_id)
         {
             var subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
             var student = new Student(subgroup);
             return View(student);
         }
+
         [HttpPost]
         public ActionResult AddStudent(Student student)
         {
             try
             {
                 UnitOfWork.Students.Create(student);
-                return RedirectToAction("Students", new { subgroup_id = student.SubGroupId });
+                return RedirectToAction("Students", new {subgroup_id = student.SubGroupId});
             }
             catch
             {
                 ModelState.AddModelError(string.Empty, "Не удалось добавить студента");
                 return View(student);
             }
-
         }
+
         public ActionResult EditStudent(int id)
         {
             var student = new RenameStudent(UnitOfWork.Students.Get(id));
             return View(student);
         }
+
         [HttpPost]
         public ActionResult EditStudent(RenameStudent student)
         {
             try
             {
                 UnitOfWork.Students.Update(student);
-                return RedirectToAction("Students", new { subgroup_id = student.SubGroupId });
+                return RedirectToAction("Students", new {subgroup_id = student.SubGroupId});
             }
             catch
             {
@@ -420,18 +437,20 @@ namespace ElectronDecanat.Controllers
                 return View(student);
             }
         }
+
         public ActionResult DeleteStudent(int id)
         {
-            Student student = UnitOfWork.Students.Get(id);
+            var student = UnitOfWork.Students.Get(id);
             return View(student);
         }
+
         [HttpPost]
         public ActionResult DeleteStudent(Student student)
         {
             try
             {
                 UnitOfWork.Students.Delete(student);
-                return RedirectToAction("Students", new { subgroup_id = student.SubGroupId });
+                return RedirectToAction("Students", new {subgroup_id = student.SubGroupId});
             }
             catch (Exception)
             {
@@ -439,75 +458,84 @@ namespace ElectronDecanat.Controllers
                 return View(student);
             }
         }
-        #endregion
-        //#region WORKS
-        //public ActionResult Works(int subgroup_id)
-        //{
-        //    Subgroup subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
-        //    ViewBag.speciality_name = subgroup.speciality_name;
-        //    ViewBag.coors = subgroup.coors;
-        //    ViewBag.group_number = subgroup.group_number;
-        //    ViewBag.subgroup_number = subgroup.subgroup_number;
-        //    ViewBag.subgroup_id = subgroup.id;
-        //    ViewBag.group_id = subgroup.group_id;
-        //    return View(UnitOfWork.Works.GetAll("where \"���_���������\"=" + subgroup_id));
-        //}
-        //public ActionResult AddWork(int subgroup_id)
-        //{
-        //    Subgroup subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
-        //    NewWork workload=new NewWork();
-        //    workload.work = new Work
-        //    {
-        //        faculty_name = subgroup.faculty_name,
-        //        speciality_name = subgroup.speciality_name,
-        //        subgroup_id=subgroup.id,
-        //        group_number=subgroup.group_number,
-        //        subgroup_number=subgroup.subgroup_number,
-        //        coors=subgroup.coors
-        //    };
-        //    workload.teachers = UnitOfWork.Works.GetTeachers();
-        //    workload.disciplines = UnitOfWork.Works.GetDisciplinesFromSpecialityId(subgroup.speciality_id);
-        //    return View(workload);
-        //}
-        //[HttpPost]
-        //public ActionResult AddWork(Work work)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Works.Create(work);
-        //        return RedirectToAction("Works", new { subgroup_id = work.subgroup_id });
-        //    }
-        //    catch(Exception e)
-        //    {
-        //        ModelState.AddModelError("error", ParseOracleError(e.Message));
-        //        NewWork workload = new NewWork();
-        //        workload.work = work;
-        //        workload.teachers = UnitOfWork.Works.GetTeachers();
-        //        workload.disciplines = UnitOfWork.Works.GetDisciplinesFromSpecialityId(work.speciality_id);
-        //        return View(workload);
-        //    }
 
-        //}
-        //public ActionResult DeleteWork(int id)
-        //{
-        //    Work work = UnitOfWork.Works.Get(id);
-        //    return View(work);
-        //}
-        //[HttpPost]
-        //public ActionResult DeleteWork(Work work)
-        //{
-        //    try
-        //    {
-        //        UnitOfWork.Works.Delete(work.id);
-        //        return RedirectToAction("Works", new { subgroup_id = work.subgroup_id });
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        ModelState.AddModelError("error", ParseOracleError(e.Message));
-        //        return View(work);
-        //    }
-        //}
-        //#endregion
+        #endregion
+
+        #region WORKS
+
+        public ActionResult Works(int subgroup_id)
+        {
+            var subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
+            ViewBag.faculty = subgroup.FacultyName;
+            ViewBag.speciality_name = subgroup.SpecialityName;
+            ViewBag.coors = subgroup.Course;
+            ViewBag.group_number = subgroup.GroupNumber;
+            ViewBag.subgroup_number = subgroup.SubGroupNumber;
+            ViewBag.subgroup_id = subgroup.Id;
+            ViewBag.group_id = subgroup.GroupId;
+            var items = UnitOfWork.Works.GetAll(works => works
+                .LoadWith(t => t.Teacher)
+                .LoadWith(t2 => t2.Discipline)
+                .Where(work => work.SubGroupId == subgroup_id));
+            return View(items);
+        }
+
+        public ActionResult AddWork(int subgroup_id)
+        {
+            var subgroup = UnitOfWork.Subgroups.Get(subgroup_id);
+            var workload = new Work();
+            workload.SubGroupId = subgroup.Id;
+            workload.Subgroup = subgroup;
+            workload.Teachers = UnitOfWork.Teachers.GetAll(table =>
+                    table.Where(teacher => teacher.Role == Teacher.TeacherRole))
+                .Select(teacher =>
+                    new SelectListItem(teacher.TeacherName,
+                        teacher.Id.ToString()));
+
+            workload.Disciplines = UnitOfWork.Disciplines.GetAll(table =>
+                    table.Where(discipline => discipline.SpecialityId == subgroup.Group.SpecialityId))
+                .Select(discipline => new SelectListItem(discipline.DisciplineName, discipline.Id.ToString()));
+            return View(workload);
+        }
+
+        [HttpPost]
+        public ActionResult AddWork(Work work)
+        {
+            try
+            {
+                UnitOfWork.Works.Create(work);
+                return RedirectToAction("Works", new {subgroup_id = work.SubGroupId});
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "не удалось добавить работу");
+                return View(work);
+            }
+        }
+
+        public ActionResult DeleteWork(int id)
+        {
+            var work = UnitOfWork.Works.Get(id);
+            return View(work);
+        }
+
+        [HttpPost]
+        public ActionResult DeleteWork(Work work)
+        {
+            try
+            {
+                UnitOfWork.Works.Delete(work);
+                return RedirectToAction("Works", new {subgroup_id = work.SubGroupId});
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "не удалось удалить работу");
+                return View(work);
+            }
+        }
+
+        #endregion
+
         #region TEACHERS
 
         public ActionResult Teachers()
@@ -522,6 +550,7 @@ namespace ElectronDecanat.Controllers
             var teacher = new RenameTeacher(UnitOfWork.Teachers.Get(id));
             return View(teacher);
         }
+
         [HttpPost]
         public ActionResult EditTeacher(RenameTeacher teacher)
         {
@@ -538,11 +567,13 @@ namespace ElectronDecanat.Controllers
                 return View(teacher);
             }
         }
+
         public ActionResult DeleteTeacher(int id)
         {
             var teacher = UnitOfWork.Teachers.Get(id);
             return View(teacher);
         }
+
         [HttpPost]
         public ActionResult DeleteTeacher(Teacher teacher)
         {
@@ -557,18 +588,22 @@ namespace ElectronDecanat.Controllers
                 return View(teacher);
             }
         }
+
         #endregion
+
         #region ROLES
+
         public ActionResult Users()
         {
             return View(UnitOfWork.Teachers.GetAll());
         }
-    
+
         public ActionResult SetRole(int id)
         {
             var user = UnitOfWork.Teachers.Get(id);
             return View(user);
         }
+
         [HttpPost]
         public ActionResult SetRole(Teacher user)
         {
@@ -586,6 +621,7 @@ namespace ElectronDecanat.Controllers
                 return View();
             }
         }
+
         #endregion
     }
 }
